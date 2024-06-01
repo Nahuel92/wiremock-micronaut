@@ -2,10 +2,10 @@ package app;
 
 import java.util.List;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
 
-@RestController
+@Controller
 public class TodoController {
     private final UserClient userClient;
     private final TodoClient todoClient;
@@ -15,7 +15,7 @@ public class TodoController {
         this.todoClient = todoClient;
     }
 
-    @GetMapping("/")
+    @Get("/")
     List<TodoDTO> todos() {
         return todoClient.findAll()
                 .stream()

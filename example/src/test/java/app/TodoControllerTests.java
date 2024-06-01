@@ -1,22 +1,22 @@
 package app;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.maciejwalkowiak.wiremock.spring.ConfigureWireMock;
-import com.maciejwalkowiak.wiremock.spring.EnableWireMock;
-import com.maciejwalkowiak.wiremock.spring.InjectWireMock;
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.client.HttpClient;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import jakarta.inject.Inject;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.nahuelrodriguez.wiremock.micronaut.ConfigureWireMock;
+import org.nahuelrodriguez.wiremock.micronaut.EnableWireMock;
+import org.nahuelrodriguez.wiremock.micronaut.InjectWireMock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@MicronautTest
 @EnableWireMock({
         @ConfigureWireMock(name = "user-client", property = "user-client.url"),
         @ConfigureWireMock(name = "todo-service", property = "todo-client.url")
@@ -29,8 +29,8 @@ class TodoControllerTests {
     @InjectWireMock("user-client")
     private WireMockServer userService;
 
-    @Autowired
-    private TestRestTemplate restTemplate;
+    @Inject
+    private HttpClient httpClient;
 
     @Test
     void returnsTodos() {
@@ -55,18 +55,22 @@ class TodoControllerTests {
                         { "id": 2, "name": "John" }
                         """)));
 
-        ResponseEntity<TodoController.TodoDTO[]> response = restTemplate.getForEntity("/", TodoController.TodoDTO[].class);
+        HttpResponse<TodoController.TodoDTO[]> response = httpClient.toBlocking()
+                .exchange("/", TodoController.TodoDTO[].class);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).hasSize(2);
-        assertThat(response.getBody()).hasSize(2).satisfies(todos -> {
-            assertThat(todos[0].id()).isEqualTo(1);
-            assertThat(todos[0].title()).isEqualTo("my todo");
-            assertThat(todos[0].userName()).isEqualTo("Amy");
+        org.junit.jupiter.api.Assertions.assertEquals(HttpStatus.OK, response.getStatus());
+        assertThat(response.getBody()).isPresent();
+        assertThat(response.getBody().get())
+                .hasSize(2)
+                .satisfies(todos -> {
+                    assertThat(todos[0].id()).isEqualTo(1);
+                    assertThat(todos[0].title()).isEqualTo("my todo");
+                    assertThat(todos[0].userName()).isEqualTo("Amy");
 
-            assertThat(todos[1].id()).isEqualTo(2);
-            assertThat(todos[1].title()).isEqualTo("my todo2");
-            assertThat(todos[1].userName()).isEqualTo("John");
-        });
+                    assertThat(todos[1].id()).isEqualTo(2);
+                    assertThat(todos[1].title()).isEqualTo("my todo2");
+                    assertThat(todos[1].userName()).isEqualTo("John");
+                }
+                );
     }
 }

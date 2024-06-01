@@ -1,4 +1,4 @@
-package com.maciejwalkowiak.wiremock.spring;
+package org.nahuelrodriguez.wiremock.micronaut;
 
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 
@@ -7,6 +7,5 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
  * Customizer must have public no-arg constructor.
  */
 public interface WireMockConfigurationCustomizer {
-
     void customize(WireMockConfiguration configuration, ConfigureWireMock options);
 }

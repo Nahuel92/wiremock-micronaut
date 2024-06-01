@@ -1,4 +1,4 @@
-package com.maciejwalkowiak.wiremock.spring;
+package org.nahuelrodriguez.wiremock.micronaut;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -10,7 +10,7 @@ import com.github.tomakehurst.wiremock.extension.Extension;
 /**
  * Configures WireMock instance.
  *
- * @author Maciej Walkowiak
+ * @author Nahuel Rodríguez
  */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ConfigureWireMock {
@@ -30,15 +30,15 @@ public @interface ConfigureWireMock {
     String name();
 
     /**
-     * The name of Spring property to inject the {@link WireMockServer#baseUrl()}
+     * The name of Micronaut property to inject the {@link WireMockServer#baseUrl()}
      *
-     * @return the name of Spring property to inject the {@link WireMockServer#baseUrl()}
+     * @return the name of Micronaut property to inject the {@link WireMockServer#baseUrl()}
      */
     String property() default "";
 
     /**
      * The location of WireMock stub files. By default, stubs are resolved from classpath location <code>wiremock-server-name/mappings/</code>.
-     *
+     * <p>
      * If provided, stubs are resolved from <code>stub-location/mappings/</code>.
      *
      * @return the stub location

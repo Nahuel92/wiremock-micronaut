@@ -3,25 +3,23 @@ package app;
 import java.util.List;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.maciejwalkowiak.wiremock.spring.ConfigureWireMock;
-import com.maciejwalkowiak.wiremock.spring.EnableWireMock;
-import com.maciejwalkowiak.wiremock.spring.InjectWireMock;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import jakarta.inject.Inject;
+import org.nahuelrodriguez.wiremock.micronaut.ConfigureWireMock;
+import org.nahuelrodriguez.wiremock.micronaut.EnableWireMock;
+import org.nahuelrodriguez.wiremock.micronaut.InjectWireMock;
 import org.junit.jupiter.api.Test;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
+@MicronautTest
 @EnableWireMock({
         @ConfigureWireMock(name = "todo-client", property = "todo-client.url", stubLocation = "custom-location")
 })
 class TodoClientTests {
-
-    @Autowired
+    @Inject
     private TodoClient todoClient;
 
     @InjectWireMock("todo-client")

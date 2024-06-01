@@ -5,37 +5,51 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.maciejwalkowiak.spring</groupId>
-        <artifactId>wiremock-spring-boot-parent</artifactId>
-        <version>2.1.3-SNAPSHOT</version>
+        <groupId>org.nahuelrodriguez.micronaut</groupId>
+        <artifactId>wiremock-micronaut-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.maciejwalkowiak.wiremock</groupId>
+    <groupId>org.nahuelrodriguez.wiremock</groupId>
     <artifactId>example</artifactId>
     <version>${project.parent.version}</version>
 
     <dependencies>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <groupId>io.micronaut</groupId>
+            <artifactId>micronaut-http-client</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.micronaut</groupId>
+            <artifactId>micronaut-http-server-netty</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.micronaut</groupId>
+            <artifactId>micronaut-inject</artifactId>
+            <version>4.5.1</version>
         </dependency>
 
-        <!-- needed for WebClient -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
-        </dependency>
-
-        <!-- test dependencies -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
+            <groupId>io.micronaut.test</groupId>
+            <artifactId>micronaut-test-core</artifactId>
+            <version>4.3.0</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
-            <groupId>com.maciejwalkowiak.spring</groupId>
-            <artifactId>wiremock-spring-boot</artifactId>
+            <groupId>io.micronaut.test</groupId>
+            <artifactId>micronaut-test-junit5</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.nahuelrodriguez.micronaut</groupId>
+            <artifactId>wiremock-micronaut</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

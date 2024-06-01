@@ -2,9 +2,11 @@ package app;
 
 import java.util.List;
 
-import org.springframework.web.service.annotation.GetExchange;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.client.annotation.Client;
 
+@Client("${todo-client.url}")
 public interface TodoClient {
-    @GetExchange("/")
+    @Get("/")
     List<Todo> findAll();
 }
