@@ -4,12 +4,12 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import io.micronaut.context.env.Environment;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
-import org.nahuelrodriguez.wiremock.micronaut.ConfigureWireMock;
-import org.nahuelrodriguez.wiremock.micronaut.EnableWireMock;
-import org.nahuelrodriguez.wiremock.micronaut.InjectWireMock;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.nahuelrodriguez.wiremock.micronaut.ConfigureWireMock;
+import org.nahuelrodriguez.wiremock.micronaut.EnableWireMock;
+import org.nahuelrodriguez.wiremock.micronaut.InjectWireMock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -20,11 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
         @ConfigureWireMock(name = "noproperty-service")
 })
 public class NestedClassWireMockMicronautExtensionTest {
-
-    public static class AppConfiguration {
-        //io.micronaut.runtime.Micronaut.run(AppConfiguration.class, null);
-    }
-
     @Inject
     private Environment environment;
 
@@ -39,7 +34,7 @@ public class NestedClassWireMockMicronautExtensionTest {
         private WireMockServer nestedClassTodoService;
 
         @Test
-        void injectsWiremockServerToMethodParameter(@InjectWireMock("user-service") WireMockServer wireMockServer) {
+        void injectsWiremockServerToMethodParameter(@InjectWireMock("user-service") final WireMockServer wireMockServer) {
             assertWireMockServer(wireMockServer, "user-service.url");
         }
 

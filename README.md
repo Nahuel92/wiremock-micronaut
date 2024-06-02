@@ -1,6 +1,7 @@
-# WireMock Spring Boot
+# WireMock Micronaut
 
-**WireMock Spring Boot** library drastically simplifies [WireMock](https://wiremock.org) configuration in a **Spring Boot** and **JUnit 5** application.
+**WireMock Micronaut** library drastically simplifies [WireMock](https://wiremock.org) configuration in a **Spring Boot
+** and **JUnit 5** application.
 
 ## 🤩 Highlights
 
@@ -41,7 +42,7 @@ class TodoControllerTests {
 
     @Test
     void aTest() {
-        wiremock.stubFor(...);
+        wiremock.stubFor(...)
     }
 }
 ```

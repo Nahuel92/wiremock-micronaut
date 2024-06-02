@@ -4,11 +4,10 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import io.micronaut.context.env.Environment;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
+import org.junit.jupiter.api.Test;
 import org.nahuelrodriguez.wiremock.micronaut.ConfigureWireMock;
 import org.nahuelrodriguez.wiremock.micronaut.EnableWireMock;
 import org.nahuelrodriguez.wiremock.micronaut.InjectWireMock;
-import org.junit.jupiter.api.Test;
-
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -19,10 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
         @ConfigureWireMock(name = "noproperty-service")
 })
 public class WireMockMicronautExtensionTest {
-    static class AppConfiguration {
-
-    }
-
     @InjectWireMock("todo-service")
     private WireMockServer todoWireMockServer;
 
@@ -30,7 +25,7 @@ public class WireMockMicronautExtensionTest {
     private Environment environment;
 
     @Test
-    void createsWiremockWithClassLevelConfigureWiremock(@InjectWireMock("user-service") WireMockServer wireMockServer) {
+    void createsWiremockWithClassLevelConfigureWiremock(@InjectWireMock("user-service") final WireMockServer wireMockServer) {
         assertWireMockServer(wireMockServer, "user-service.url");
     }
 
@@ -40,13 +35,13 @@ public class WireMockMicronautExtensionTest {
     }
 
     @Test
-    void doesNotSetPropertyWhenNotProvided(@InjectWireMock("noproperty-service") WireMockServer wireMockServer) {
+    void doesNotSetPropertyWhenNotProvided(@InjectWireMock("noproperty-service") final WireMockServer wireMockServer) {
         assertThat(wireMockServer)
                 .as("creates WireMock instance")
                 .isNotNull();
     }
 
-    private void assertWireMockServer(WireMockServer wireMockServer, String property) {
+    private void assertWireMockServer(final WireMockServer wireMockServer, final String property) {
         assertThat(wireMockServer)
                 .as("creates WireMock instance")
                 .isNotNull();
@@ -56,8 +51,9 @@ public class WireMockMicronautExtensionTest {
         assertThat(wireMockServer.port())
                 .as("sets random port")
                 .isNotZero();
-        /*assertThat(environment.getProperty(property))
-                .as("sets Spring property")
-                .isEqualTo(wireMockServer.baseUrl());*/
+        assertThat(environment.getProperty(property, String.class))
+                .isPresent()
+                .as("sets Micronaut property")
+                .contains(wireMockServer.baseUrl());
     }
 }

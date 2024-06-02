@@ -3,6 +3,9 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <groupId>org.nahuelrodriguez.wiremock</groupId>
+    <artifactId>example</artifactId>
+    <version>${project.parent.version}</version>
 
     <parent>
         <groupId>org.nahuelrodriguez.micronaut</groupId>
@@ -10,9 +13,10 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.nahuelrodriguez.wiremock</groupId>
-    <artifactId>example</artifactId>
-    <version>${project.parent.version}</version>
+    <properties>
+        <jdk.version>21</jdk.version>
+        <micronaut.core.version>4.4.3</micronaut.core.version>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -29,6 +33,11 @@
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-inject</artifactId>
             <version>4.5.1</version>
+        </dependency>
+        <dependency>
+            <groupId>io.micronaut.serde</groupId>
+            <artifactId>micronaut-serde-jackson</artifactId>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
@@ -48,9 +57,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.nahuelrodriguez.micronaut</groupId>
+            <groupId>org.nahuelrodriguez</groupId>
             <artifactId>wiremock-micronaut</artifactId>
-            <version>${project.version}</version>
+            <version>1.0.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -59,16 +68,17 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
                 <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.jreleaser</groupId>
-                <artifactId>jreleaser-maven-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
+                    <annotationProcessorPaths combine.children="append">
+                        <path>
+                            <groupId>io.micronaut</groupId>
+                            <artifactId>micronaut-inject-java</artifactId>
+                            <version>${micronaut.core.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <annotationProcessorPathsUseDepMgmt>true</annotationProcessorPathsUseDepMgmt>
                 </configuration>
             </plugin>
         </plugins>
