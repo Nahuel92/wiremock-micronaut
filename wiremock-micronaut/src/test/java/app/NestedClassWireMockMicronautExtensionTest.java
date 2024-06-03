@@ -29,7 +29,6 @@ public class NestedClassWireMockMicronautExtensionTest {
     @Nested
     @DisplayName("Test Something")
     class NestedTest {
-
         @InjectWireMock("todo-service")
         private WireMockServer nestedClassTodoService;
 

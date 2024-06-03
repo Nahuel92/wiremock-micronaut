@@ -1,20 +1,17 @@
 package org.nahuelrodriguez.wiremock.micronaut;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.Extension;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Configures WireMock instance.
- *
- * @author Nahuel Rodríguez
  */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ConfigureWireMock {
-
     /**
      * Port on which WireMock server is going to listen. {@code 0} means WireMock will pick random port.
      *
@@ -37,7 +34,8 @@ public @interface ConfigureWireMock {
     String property() default "";
 
     /**
-     * The location of WireMock stub files. By default, stubs are resolved from classpath location <code>wiremock-server-name/mappings/</code>.
+     * The location of WireMock stub files. By default, stubs are resolved from classpath location
+     * <code>wiremock-server-name/mappings/</code>.
      * <p>
      * If provided, stubs are resolved from <code>stub-location/mappings/</code>.
      *
@@ -53,7 +51,8 @@ public @interface ConfigureWireMock {
     Class<? extends Extension>[] extensions() default {};
 
     /**
-     * Customizes {@link WireMockConfiguration} used by {@link WireMockServer} instance. Customizers are ordered by their natural order in this array. Each customizer must have no-arg constructor.
+     * Customizes {@link WireMockConfiguration} used by {@link WireMockServer} instance. Customizers are ordered by
+     * their natural order in this array. Each customizer must have no-arg constructor.
      *
      * @return the configuration customizers classes
      */

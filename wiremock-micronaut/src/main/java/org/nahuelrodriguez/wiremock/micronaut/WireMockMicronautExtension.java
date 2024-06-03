@@ -5,10 +5,10 @@ import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.env.MapPropertySource;
+import io.micronaut.test.annotation.AnnotationUtils;
 import io.micronaut.test.extensions.junit5.MicronautJunit5Extension;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
-import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.platform.commons.support.AnnotationSupport;
 import org.junit.platform.commons.util.ReflectionUtils;
 import org.junit.platform.commons.util.StringUtils;
@@ -21,22 +21,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static io.micronaut.test.annotation.AnnotationUtils.findRepeatableAnnotations;
 
-/**
- * JUnit 5 extension that sets {@link WireMockServer} instances previously registered with {@link ConfigureWireMock}
- * on test class fields.
- *
- * @author Nahuel Rodríguez
- */
 public class WireMockMicronautExtension extends MicronautJunit5Extension {
     private static final Logger LOGGER = LoggerFactory.getLogger(WireMockMicronautExtension.class);
 
     private static void applyCustomizers(final ConfigureWireMock options, final WireMockConfiguration serverOptions) {
-        for (Class<? extends WireMockConfigurationCustomizer> customizer : options.configurationCustomizers()) {
+        for (final Class<? extends WireMockConfigurationCustomizer> customizer : options.configurationCustomizers()) {
             try {
                 ReflectionUtils.newInstance(customizer).customize(serverOptions, options);
             } catch (final RuntimeException e) {
@@ -52,7 +44,8 @@ public class WireMockMicronautExtension extends MicronautJunit5Extension {
     public void beforeAll(final ExtensionContext extensionContext) throws Exception {
         super.beforeAll(extensionContext);
         Arrays.stream(extensionContext.getRequiredTestClass()
-                        .getAnnotationsByType(EnableWireMock.class))
+                        .getAnnotationsByType(EnableWireMock.class)
+                )
                 .map(EnableWireMock::value)
                 .flatMap(Arrays::stream)
                 .forEach(e -> resolveOrCreateWireMockServer(extensionContext, applicationContext, e));
@@ -61,47 +54,43 @@ public class WireMockMicronautExtension extends MicronautJunit5Extension {
     @Override
     public void beforeEach(final ExtensionContext extensionContext) throws Exception {
         super.beforeEach(extensionContext);
-
-        // reset all wiremock servers associated with application context
-        applicationContext.getBeansOfType(WireMockServer.class).forEach(WireMockServer::resetAll);
-        //Store.INSTANCE.findAllInstances(extensionContext).forEach(WireMockServer::resetAll);
-
-        // inject properties into test class fields
-        injectWireMockInstances(extensionContext, InjectWireMock.class, InjectWireMock::value);
+        applicationContext.getBeansOfType(WireMockServer.class)
+                .forEach(WireMockServer::resetAll);
+        injectWireMockInstances(extensionContext);
     }
 
-    private <T extends Annotation> void injectWireMockInstances(ExtensionContext extensionContext, Class<T> annotation, Function<T, String> fn) throws IllegalAccessException {
+    private <T extends Annotation> void injectWireMockInstances(final ExtensionContext extensionContext)
+            throws IllegalAccessException {
         // getRequiredTestInstances() return multiple instances for nested tests
-        for (Object testInstance : extensionContext.getRequiredTestInstances().getAllInstances()) {
-            List<Field> annotatedFields = AnnotationSupport.findAnnotatedFields(testInstance.getClass(), annotation);
-            for (Field annotatedField : annotatedFields) {
-                T annotationValue = annotatedField.getAnnotation(annotation);
+        for (final Object testInstance : extensionContext.getRequiredTestInstances().getAllInstances()) {
+            final List<Field> annotatedFields = AnnotationSupport.findAnnotatedFields(testInstance.getClass(), InjectWireMock.class);
+            for (final Field annotatedField : annotatedFields) {
+                final var annotationValue = annotatedField.getAnnotation(InjectWireMock.class);
                 annotatedField.setAccessible(true);
-
-                WireMockServer wiremock = getStore(extensionContext).get(annotationValue, WireMockServer.class);
-                //Store.INSTANCE.findRequiredWireMockInstance(extensionContext, fn.apply(annotationValue));
+                final WireMockServer wiremock = getStore(extensionContext).get(annotationValue.value(), WireMockServer.class);
                 annotatedField.set(testInstance, wiremock);
             }
         }
     }
 
     @Override
-    public boolean supportsParameter(final ParameterContext parameterContext, final ExtensionContext extensionContext) throws ParameterResolutionException {
-        return parameterContext.getParameter().getType() == WireMockServer.class && (parameterContext.isAnnotated(InjectWireMock.class));
+    public boolean supportsParameter(final ParameterContext parameterContext, final ExtensionContext extensionContext) {
+        return parameterContext.getParameter().getType().equals(WireMockServer.class) &&
+                parameterContext.isAnnotated(InjectWireMock.class);
     }
 
     @Override
-    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
-            throws ParameterResolutionException {
-        final String wireMockServerName = parameterContext.findAnnotation(InjectWireMock.class)
-                .get()
-                .value();
-        return getStore(extensionContext).get(wireMockServerName, WireMockServer.class);
+    public Object resolveParameter(final ParameterContext parameterContext, final ExtensionContext extensionContext) {
+        return parameterContext.findAnnotation(InjectWireMock.class)
+                .map(InjectWireMock::value)
+                .map(e -> getStore(extensionContext).get(e, WireMockServer.class))
+                .orElseThrow();
     }
 
-    private void resolveOrCreateWireMockServer(ExtensionContext extensionContext, final ApplicationContext context, final ConfigureWireMock options) {
-        final WireMockServer wireMockServer = getStore(extensionContext).get(options.name(), WireMockServer.class);
-        if (wireMockServer != null) {
+    private void resolveOrCreateWireMockServer(final ExtensionContext extensionContext, final ApplicationContext context,
+                                               final ConfigureWireMock options) {
+        final var wireMockServer = getStore(extensionContext).get(options.name(), WireMockServer.class);
+        if (wireMockServer != null && wireMockServer.isRunning()) {
             LOGGER.info("WireMockServer with name '{}' is already configured", options.name());
             return;
         }
@@ -134,7 +123,7 @@ public class WireMockMicronautExtension extends MicronautJunit5Extension {
 
         // configure Micronaut environment property
         if (StringUtils.isNotBlank(options.property())) {
-            Map<String, Object> property = Map.of(options.property(), newServer.baseUrl());
+            final var property = Map.<String, Object>of(options.property(), newServer.baseUrl());
             LOGGER.debug("Adding property '{}' to Micronaut application context", property);
             context.getEnvironment().addPropertySource(MapPropertySource.of("customSource", property));
         }
@@ -144,7 +133,7 @@ public class WireMockMicronautExtension extends MicronautJunit5Extension {
         return StringUtils.isBlank(options.stubLocation()) ? "wiremock/" + options.name() : options.stubLocation();
     }
 
-    // TODO
+    // TODO see if this is needed
     public void createContextCustomizer(final Class<?> testClass, List<?> configAttributes) {
         // scan class and all enclosing classes if the test class is @Nested
         final var holder = new ConfigureWiremockHolder();
@@ -154,7 +143,6 @@ public class WireMockMicronautExtension extends MicronautJunit5Extension {
         //}
 
         if (holder.isEmpty()) {
-            return;
         }
         //holder.asArray()
     }
@@ -167,7 +155,7 @@ public class WireMockMicronautExtension extends MicronautJunit5Extension {
         }
 
         void parse(final Class<?> clazz) {
-            findRepeatableAnnotations(clazz, EnableWireMock.class)
+            AnnotationUtils.findRepeatableAnnotations(clazz, EnableWireMock.class)
                     .stream()
                     .map(EnableWireMock::value)
                     .forEach(this::add);
