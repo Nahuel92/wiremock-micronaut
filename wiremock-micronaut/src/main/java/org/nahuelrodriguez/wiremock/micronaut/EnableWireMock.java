@@ -9,16 +9,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Enables creating WireMock servers through {@link WireMockContextCustomizer}.
+ * Enables creating WireMock servers through {@link WireMockConfigurationCustomizer}.
  *
- * @author Nahuel Rodríguez
  */
-@Target({ElementType.TYPE})
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @ExtendWith(WireMockMicronautExtension.class)
 public @interface EnableWireMock {
     /**
-     * A list of {@link WireMockServer} configurations. For each configuration a separate instance of {@link WireMockServer} is created.
+     * A list of {@link WireMockServer} configurations. For each configuration a separate instance
+     * of {@link WireMockServer} is created.
      *
      * @return an array of configurations
      */

@@ -6,6 +6,8 @@ import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.net.ServerSocket;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -27,25 +29,27 @@ import static org.assertj.core.api.Assertions.assertThat;
                 configurationCustomizers = WireMockConfigurationCustomizerTest.SampleConfigurationCustomizer.class
         ),
 })
-//@ExtendWith(OutputCaptureExtension.class)
 class WireMockConfigurationCustomizerTest {
-    private static final int USER_SERVICE_PORT = 1;//TestSocketUtils.findAvailableTcpPort();
-    private static final int TODO_SERVICE_PORT = 1;//TestSocketUtils.findAvailableTcpPort();
+    private static final int USER_SERVICE_PORT = findAvailablePort();
+    private static final int TODO_SERVICE_PORT = findAvailablePort();
+
+    private static int findAvailablePort() {
+        try (final ServerSocket serverSocket = new ServerSocket(0)) {
+            return serverSocket.getLocalPort();
+        } catch (final IOException e) {
+            throw new UncheckedIOException("Failed to find available port", e);
+        }
+    }
 
     @Test
-    void outputsWireMockLogs(
-            //CapturedOutput capturedOutput
-    ) throws IOException, InterruptedException {
+    void outputsWireMockLogs() throws IOException, InterruptedException {
         userService.stubFor(get(urlEqualTo("/test"))
                 .willReturn(aResponse().withHeader("Content-Type", "text/plain").withBody("Hello World!")));
         try (final HttpClient httpClient = HttpClient.newHttpClient()) {
-            HttpResponse<String> response = httpClient.send(
+            final HttpResponse<String> response = httpClient.send(
                     HttpRequest.newBuilder().GET().uri(URI.create("http://localhost:" + userService.port() + "/test")).build(),
                     HttpResponse.BodyHandlers.ofString());
             assertThat(response.body()).isEqualTo("Hello World!");
-        /*assertThat(capturedOutput.getAll())
-                .as("Must contain debug logging for WireMock")
-                .contains("Matched response definition:");*/
         }
     }
 
@@ -62,7 +66,6 @@ class WireMockConfigurationCustomizerTest {
     }
 
     static class SampleConfigurationCustomizer implements WireMockConfigurationCustomizer {
-
         @Override
         public void customize(final WireMockConfiguration configuration, final ConfigureWireMock options) {
             if (options.name().equals("user-service")) {

@@ -4,9 +4,9 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.client.HttpClient;
+import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.nahuelrodriguez.wiremock.micronaut.ConfigureWireMock;
 import org.nahuelrodriguez.wiremock.micronaut.EnableWireMock;
@@ -22,7 +22,6 @@ import static org.assertj.core.api.Assertions.assertThat;
         @ConfigureWireMock(name = "todo-service", property = "todo-client.url")
 })
 class TodoControllerTests {
-
     @InjectWireMock("todo-service")
     private WireMockServer todoService;
 
@@ -31,6 +30,9 @@ class TodoControllerTests {
 
     @Inject
     private HttpClient httpClient;
+
+    @Inject
+    EmbeddedServer embeddedServer;
 
     @Test
     void returnsTodos() {
@@ -56,7 +58,7 @@ class TodoControllerTests {
                         """)));
 
         HttpResponse<TodoController.TodoDTO[]> response = httpClient.toBlocking()
-                .exchange("/", TodoController.TodoDTO[].class);
+                .exchange("http://localhost:" + embeddedServer.getPort() + "/", TodoController.TodoDTO[].class);
 
         org.junit.jupiter.api.Assertions.assertEquals(HttpStatus.OK, response.getStatus());
         assertThat(response.getBody()).isPresent();

@@ -1,11 +1,15 @@
 package app;
 
-import java.util.List;
-
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
+import io.micronaut.scheduling.TaskExecutors;
+import io.micronaut.scheduling.annotation.ExecuteOn;
+import io.micronaut.serde.annotation.Serdeable;
+
+import java.util.List;
 
 @Controller
+@ExecuteOn(TaskExecutors.BLOCKING)
 public class TodoController {
     private final UserClient userClient;
     private final TodoClient todoClient;
@@ -23,6 +27,7 @@ public class TodoController {
                 .toList();
     }
 
+    @Serdeable
     record TodoDTO(Long id, String title, String userName) {
     }
 }

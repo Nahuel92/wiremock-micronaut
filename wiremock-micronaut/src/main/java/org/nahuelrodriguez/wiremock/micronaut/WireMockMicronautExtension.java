@@ -15,12 +15,9 @@ import org.junit.platform.commons.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 
@@ -54,20 +51,32 @@ public class WireMockMicronautExtension extends MicronautJunit5Extension {
     @Override
     public void beforeEach(final ExtensionContext extensionContext) throws Exception {
         super.beforeEach(extensionContext);
-        applicationContext.getBeansOfType(WireMockServer.class)
-                .forEach(WireMockServer::resetAll);
+        final var a = getStore(extensionContext).get(applicationContext, Map.class);
+        Collection<WireMockServer> values = a.values();
+        values.forEach(WireMockServer::resetAll);
         injectWireMockInstances(extensionContext);
     }
 
-    private <T extends Annotation> void injectWireMockInstances(final ExtensionContext extensionContext)
-            throws IllegalAccessException {
+    private void injectWireMockInstances(final ExtensionContext extensionContext) throws IllegalAccessException {
         // getRequiredTestInstances() return multiple instances for nested tests
         for (final Object testInstance : extensionContext.getRequiredTestInstances().getAllInstances()) {
             final List<Field> annotatedFields = AnnotationSupport.findAnnotatedFields(testInstance.getClass(), InjectWireMock.class);
             for (final Field annotatedField : annotatedFields) {
                 final var annotationValue = annotatedField.getAnnotation(InjectWireMock.class);
                 annotatedField.setAccessible(true);
-                final WireMockServer wiremock = getStore(extensionContext).get(annotationValue.value(), WireMockServer.class);
+                final var testApplicationContext = Optional.ofNullable(getStore(extensionContext)
+                                .get(applicationContext))
+                        .filter(e -> e instanceof Map<?, ?>)
+                        .map(e -> (Map<String, WireMockServer>) e)
+                        .orElseThrow();
+
+                final var wiremock = testApplicationContext.get(annotationValue.value());
+                if (wiremock == null) {
+                    throw new IllegalStateException(
+                            "WireMockServer with name '" + annotationValue.value() + "' not registered. " +
+                                    "Perhaps you forgot to configure it first with @ConfigureWireMock?"
+                    );
+                }
                 annotatedField.set(testInstance, wiremock);
             }
         }
@@ -107,13 +116,19 @@ public class WireMockMicronautExtension extends MicronautJunit5Extension {
 
         applyCustomizers(options, serverOptions);
 
-        LOGGER.info("Configuring WireMockServer with name '{}' on port: {}", options.name(), serverOptions.portNumber());
+        //LOGGER.info("Configuring WireMockServer with name '{}' on port: {}", options.name(), serverOptions.portNumber());
+        LOGGER.info("Configuring WireMockServer with {}", options.stubLocation());
         final WireMockServer newServer = new WireMockServer(serverOptions);
         newServer.start();
         LOGGER.info("Started WireMockServer with name '{}':{}", options.name(), newServer.baseUrl());
 
         // save server to store
-        getStore(extensionContext).put(options.name(), newServer);
+        final var isPresent = getStore(extensionContext).get(applicationContext) != null;
+        if (!isPresent) {
+            getStore(extensionContext).put(applicationContext, new ConcurrentHashMap<>());
+        }
+        final var map = getStore(extensionContext).get(applicationContext, Map.class);
+        map.put(options.name(), newServer);
 
         // add shutdown hook
         context.registerSingleton(

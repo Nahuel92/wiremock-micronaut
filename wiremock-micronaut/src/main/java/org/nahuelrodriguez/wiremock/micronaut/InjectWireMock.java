@@ -1,15 +1,13 @@
 package org.nahuelrodriguez.wiremock.micronaut;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * Injects WireMock instance previously configured on the class or field level with {@link ConfigureWireMock}.
  */
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
+@Documented
 public @interface InjectWireMock {
     /**
      * The name of WireMock instance to inject.
