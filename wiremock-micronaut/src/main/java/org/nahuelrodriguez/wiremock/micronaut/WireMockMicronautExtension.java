@@ -116,8 +116,7 @@ public class WireMockMicronautExtension extends MicronautJunit5Extension {
 
         applyCustomizers(options, serverOptions);
 
-        //LOGGER.info("Configuring WireMockServer with name '{}' on port: {}", options.name(), serverOptions.portNumber());
-        LOGGER.info("Configuring WireMockServer with {}", options.stubLocation());
+        LOGGER.info("Configuring WireMockServer with name '{}' on port: {}", options.name(), serverOptions.portNumber());
         final WireMockServer newServer = new WireMockServer(serverOptions);
         newServer.start();
         LOGGER.info("Started WireMockServer with name '{}':{}", options.name(), newServer.baseUrl());
