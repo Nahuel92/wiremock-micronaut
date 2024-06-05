@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.env.MapPropertySource;
+import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.test.annotation.AnnotationUtils;
 import io.micronaut.test.extensions.junit5.MicronautJunit5Extension;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -16,8 +17,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 
@@ -51,9 +54,7 @@ public class WireMockMicronautExtension extends MicronautJunit5Extension {
     @Override
     public void beforeEach(final ExtensionContext extensionContext) throws Exception {
         super.beforeEach(extensionContext);
-        final var storeMap = getStore(extensionContext).get(applicationContext, Map.class);
-        final Collection<WireMockServer> wireMockServers = storeMap.values();
-        wireMockServers.forEach(WireMockServer::resetAll);
+        applicationContext.getBeansOfType(WireMockServer.class).forEach(WireMockServer::resetAll);
         injectWireMockInstances(extensionContext);
     }
 
@@ -64,13 +65,10 @@ public class WireMockMicronautExtension extends MicronautJunit5Extension {
             for (final Field annotatedField : annotatedFields) {
                 final var annotationValue = annotatedField.getAnnotation(InjectWireMock.class);
                 annotatedField.setAccessible(true);
-                final var storeApplicationContext = Optional.ofNullable(getStore(extensionContext)
-                                .get(applicationContext))
-                        .filter(e -> e instanceof Map<?, ?>)
-                        .map(e -> (Map<String, WireMockServer>) e)
-                        .orElseThrow();
-
-                final var wiremock = storeApplicationContext.get(annotationValue.value());
+                final var wiremock = applicationContext.getBean(
+                        WireMockServer.class,
+                        Qualifiers.byName(annotationValue.value())
+                );
                 if (wiremock == null) {
                     throw new IllegalStateException(
                             "WireMockServer with name '" + annotationValue.value() + "' not registered. " +
@@ -122,12 +120,11 @@ public class WireMockMicronautExtension extends MicronautJunit5Extension {
         LOGGER.info("Started WireMockServer with name '{}':{}", options.name(), newServer.baseUrl());
 
         // save server to store
-        final var storeApplicationContext = getStore(extensionContext).get(applicationContext);
-        if (storeApplicationContext == null) {
-            getStore(extensionContext).put(applicationContext, new ConcurrentHashMap<>());
-        }
-        final Map<String, WireMockServer> storeMap = getStore(extensionContext).get(applicationContext, Map.class);
-        storeMap.put(options.name(), newServer);
+        applicationContext.registerSingleton(
+                WireMockServer.class,
+                newServer,
+                Qualifiers.byName(options.name())
+        );
 
         // add shutdown hook
         context.registerSingleton(
