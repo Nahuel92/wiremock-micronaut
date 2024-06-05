@@ -51,9 +51,9 @@ public class WireMockMicronautExtension extends MicronautJunit5Extension {
     @Override
     public void beforeEach(final ExtensionContext extensionContext) throws Exception {
         super.beforeEach(extensionContext);
-        final var a = getStore(extensionContext).get(applicationContext, Map.class);
-        Collection<WireMockServer> values = a.values();
-        values.forEach(WireMockServer::resetAll);
+        final var storeMap = getStore(extensionContext).get(applicationContext, Map.class);
+        final Collection<WireMockServer> wireMockServers = storeMap.values();
+        wireMockServers.forEach(WireMockServer::resetAll);
         injectWireMockInstances(extensionContext);
     }
 
@@ -64,13 +64,13 @@ public class WireMockMicronautExtension extends MicronautJunit5Extension {
             for (final Field annotatedField : annotatedFields) {
                 final var annotationValue = annotatedField.getAnnotation(InjectWireMock.class);
                 annotatedField.setAccessible(true);
-                final var testApplicationContext = Optional.ofNullable(getStore(extensionContext)
+                final var storeApplicationContext = Optional.ofNullable(getStore(extensionContext)
                                 .get(applicationContext))
                         .filter(e -> e instanceof Map<?, ?>)
                         .map(e -> (Map<String, WireMockServer>) e)
                         .orElseThrow();
 
-                final var wiremock = testApplicationContext.get(annotationValue.value());
+                final var wiremock = storeApplicationContext.get(annotationValue.value());
                 if (wiremock == null) {
                     throw new IllegalStateException(
                             "WireMockServer with name '" + annotationValue.value() + "' not registered. " +
@@ -122,12 +122,12 @@ public class WireMockMicronautExtension extends MicronautJunit5Extension {
         LOGGER.info("Started WireMockServer with name '{}':{}", options.name(), newServer.baseUrl());
 
         // save server to store
-        final var isPresent = getStore(extensionContext).get(applicationContext) != null;
-        if (!isPresent) {
+        final var storeApplicationContext = getStore(extensionContext).get(applicationContext);
+        if (storeApplicationContext == null) {
             getStore(extensionContext).put(applicationContext, new ConcurrentHashMap<>());
         }
-        final var map = getStore(extensionContext).get(applicationContext, Map.class);
-        map.put(options.name(), newServer);
+        final Map<String, WireMockServer> storeMap = getStore(extensionContext).get(applicationContext, Map.class);
+        storeMap.put(options.name(), newServer);
 
         // add shutdown hook
         context.registerSingleton(
