@@ -14,7 +14,7 @@ public class TodoController {
     private final UserClient userClient;
     private final TodoClient todoClient;
 
-    public TodoController(UserClient userClient, TodoClient todoClient) {
+    public TodoController(final UserClient userClient, final TodoClient todoClient) {
         this.userClient = userClient;
         this.todoClient = todoClient;
     }

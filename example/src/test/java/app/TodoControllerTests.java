@@ -1,12 +1,13 @@
 package app;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.client.HttpClient;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
+import org.assertj.core.api.AutoCloseableSoftAssertions;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 import org.nahuelrodriguez.wiremock.micronaut.ConfigureWireMock;
 import org.nahuelrodriguez.wiremock.micronaut.EnableWireMock;
@@ -36,6 +37,7 @@ class TodoControllerTests {
 
     @Test
     void returnsTodos() {
+        // given
         todoService.stubFor(get("/").willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody("""
@@ -44,35 +46,37 @@ class TodoControllerTests {
                             { "id": 2, "userId": 2, "title": "my todo2" }
                         ]
                         """)));
-
+        // and
         userService.stubFor(get("/1").willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody("""
                         { "id": 1, "name": "Amy" }
                         """)));
-
+        // and
         userService.stubFor(get("/2").willReturn(aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody("""
                         { "id": 2, "name": "John" }
                         """)));
-
-        HttpResponse<TodoController.TodoDTO[]> response = httpClient.toBlocking()
+        // and
+        final var response = httpClient.toBlocking()
                 .exchange("http://localhost:" + embeddedServer.getPort() + "/", TodoController.TodoDTO[].class);
 
-        org.junit.jupiter.api.Assertions.assertEquals(HttpStatus.OK, response.getStatus());
-        assertThat(response.getBody()).isPresent();
-        assertThat(response.getBody().get())
-                .hasSize(2)
-                .satisfies(todos -> {
-                    assertThat(todos[0].id()).isEqualTo(1);
-                    assertThat(todos[0].title()).isEqualTo("my todo");
-                    assertThat(todos[0].userName()).isEqualTo("Amy");
-
-                    assertThat(todos[1].id()).isEqualTo(2);
-                    assertThat(todos[1].title()).isEqualTo("my todo2");
-                    assertThat(todos[1].userName()).isEqualTo("John");
-                }
-                );
+        try (final var softly = new AutoCloseableSoftAssertions()) {
+            softly.assertThat((Object) response.getStatus()).isEqualTo(HttpStatus.OK);
+            softly.assertThat(response.getBody())
+                    .isPresent()
+                    .get(InstanceOfAssertFactories.array(TodoController.TodoDTO[].class))
+                    .hasSize(2)
+                    .satisfies(todos -> {
+                                assertThat(todos[0].id()).isEqualTo(1);
+                                assertThat(todos[0].title()).isEqualTo("my todo");
+                                assertThat(todos[0].userName()).isEqualTo("Amy");
+                                assertThat(todos[1].id()).isEqualTo(2);
+                                assertThat(todos[1].title()).isEqualTo("my todo2");
+                                assertThat(todos[1].userName()).isEqualTo("John");
+                            }
+                    );
+        }
     }
 }
