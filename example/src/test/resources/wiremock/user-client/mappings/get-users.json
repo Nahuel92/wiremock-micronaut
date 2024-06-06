@@ -5,7 +5,10 @@
   },
   "response": {
     "status": 200,
-    "jsonBody": { "id": 1, "name": "Jenna" },
+    "jsonBody": {
+      "id": 1,
+      "name": "Jenna"
+    },
     "headers": {
       "Content-Type": "application/json"
     }
