@@ -1,17 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.nahuelrodriguez.wiremock</groupId>
-    <artifactId>example</artifactId>
-    <version>${project.parent.version}</version>
+    <groupId>org.nahuelrodriguez</groupId>
+    <artifactId>wiremock-micronaut</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
 
     <parent>
         <groupId>org.nahuelrodriguez.micronaut</groupId>
         <artifactId>wiremock-micronaut-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
+
+    <name>WireMock Micronaut</name>
+    <description>WireMock integration for Micronaut</description>
+    <url>https://github.com/nahuel92/wiremock-micronaut/</url>
 
     <properties>
         <jdk.version>21</jdk.version>
@@ -21,37 +26,34 @@
     <dependencies>
         <dependency>
             <groupId>io.micronaut</groupId>
-            <artifactId>micronaut-http-client</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.micronaut</groupId>
-            <artifactId>micronaut-http-server-netty</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.micronaut</groupId>
             <artifactId>micronaut-inject</artifactId>
             <version>4.5.1</version>
+        </dependency>
+        <dependency>
+            <groupId>io.micronaut</groupId>
+            <artifactId>micronaut-runtime</artifactId>
+            <version>4.4.10</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>io.micronaut.serde</groupId>
-            <artifactId>micronaut-serde-jackson</artifactId>
-            <scope>compile</scope>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
         </dependency>
 
-        <!-- Test dependencies -->
         <dependency>
             <groupId>io.micronaut.test</groupId>
             <artifactId>micronaut-test-core</artifactId>
             <version>4.3.0</version>
-            <scope>test</scope>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.micronaut.test</groupId>
             <artifactId>micronaut-test-junit5</artifactId>
-            <scope>test</scope>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>
@@ -59,10 +61,13 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.nahuelrodriguez</groupId>
-            <artifactId>wiremock-micronaut</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-            <scope>test</scope>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.wiremock</groupId>
+            <artifactId>wiremock-standalone</artifactId>
         </dependency>
     </dependencies>
 
@@ -85,4 +90,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>
