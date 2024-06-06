@@ -1,10 +1,8 @@
 package org.nahuelrodriguez.wiremock.micronaut;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.common.Slf4jNotifier;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import io.micronaut.context.ApplicationContext;
-import io.micronaut.context.env.Environment;
 import io.micronaut.context.env.MapPropertySource;
 import io.micronaut.test.extensions.junit5.MicronautJunit5Extension;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -15,7 +13,6 @@ import org.junit.platform.commons.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,60 +20,6 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 
 public class WireMockMicronautExtension extends MicronautJunit5Extension {
     private static final Logger LOGGER = LoggerFactory.getLogger(WireMockMicronautExtension.class);
-
-    private static WireMockServer getStartedWireMockServer(final ConfigureWireMock options) {
-        final var serverOptions = getWireMockConfiguration(options);
-        LOGGER.info("Configuring WireMockServer with name '{}' on port: '{}'", options.name(), serverOptions.portNumber());
-        final var newServer = new WireMockServer(serverOptions);
-        newServer.start();
-        LOGGER.info("Started WireMockServer with name '{}': '{}'", options.name(), newServer.baseUrl());
-        return newServer;
-    }
-
-    private static WireMockConfiguration getWireMockConfiguration(final ConfigureWireMock options) {
-        final var serverOptions = options()
-                .usingFilesUnderClasspath(resolveStubLocation(options))
-                .port(options.port())
-                .notifier(new Slf4jNotifier(true));
-        if (options.extensions().length > 0) {
-            serverOptions.extensions(options.extensions());
-        }
-        applyCustomizers(options, serverOptions);
-        return serverOptions;
-    }
-
-    private static void applyCustomizers(final ConfigureWireMock options, final WireMockConfiguration serverOptions) {
-        for (final Class<? extends WireMockConfigurationCustomizer> customizer : options.configurationCustomizers()) {
-            try {
-                ReflectionUtils.newInstance(customizer).customize(serverOptions, options);
-            } catch (final RuntimeException e) {
-                if (e.getCause() instanceof NoSuchMethodException) {
-                    LOGGER.error("Customizer {} must have a no-arg constructor", customizer, e);
-                }
-                throw e;
-            }
-        }
-    }
-
-    private static void setShutdownHookForWireMockServer(final ApplicationContext context,
-                                                         final ConfigureWireMock options,
-                                                         final WireMockServer server) {
-        context.registerSingleton(ShutdownEventForWiremock.class, new ShutdownEventForWiremock(server, options));
-    }
-
-    private static void injectPropertyIntoMicronautEnvironment(final Environment environment,
-                                                               final String propertyName, final WireMockServer server) {
-        if (StringUtils.isBlank(propertyName)) {
-            return;
-        }
-        final var property = Map.<String, Object>of(propertyName, server.baseUrl());
-        LOGGER.debug("Adding property '{}' to Micronaut application context", property);
-        environment.addPropertySource(MapPropertySource.of("customSource", property));
-    }
-
-    private static String resolveStubLocation(final ConfigureWireMock options) {
-        return StringUtils.isBlank(options.stubLocation()) ? "wiremock/" + options.name() : options.stubLocation();
-    }
 
     @Override
     public void beforeAll(final ExtensionContext extensionContext) throws Exception {
@@ -87,7 +30,7 @@ public class WireMockMicronautExtension extends MicronautJunit5Extension {
     @Override
     public void beforeEach(final ExtensionContext extensionContext) throws Exception {
         super.beforeEach(extensionContext);
-        getWireMockServerInstances(extensionContext).forEach(WireMockServer::resetAll);
+        getWireMockServerMap(extensionContext).values().forEach(WireMockServer::resetAll);
         injectWireMockInstances(extensionContext);
     }
 
@@ -124,29 +67,73 @@ public class WireMockMicronautExtension extends MicronautJunit5Extension {
         }
         final var newServer = getStartedWireMockServer(options);
         saveWireMockServerToStore(extensionContext, options.name(), newServer);
-        setShutdownHookForWireMockServer(applicationContext, options, newServer);
-        injectPropertyIntoMicronautEnvironment(applicationContext.getEnvironment(), options.property(), newServer);
+        setShutdownHookForWireMockServer(options, newServer);
+        injectPropertyIntoMicronautEnvironment(options.property(), newServer);
     }
 
     @SuppressWarnings("unchecked")  // "get" doesn't support generics usage
     private Map<String, WireMockServer> getWireMockServerMap(final ExtensionContext extensionContext) {
-        return (Map<String, WireMockServer>) getStore(extensionContext).get(applicationContext, Map.class);
-    }
-
-    @SuppressWarnings("unchecked")  // "getOrComputeIfAbsent" doesn't support generics usage
-    private void saveWireMockServerToStore(final ExtensionContext extensionContext, final String name,
-                                           final WireMockServer server) {
-        getStore(extensionContext)
+        return getStore(extensionContext)
                 .getOrComputeIfAbsent(
                         applicationContext,
                         (applicationContext) -> new ConcurrentHashMap<String, WireMockServer>(),
                         Map.class
-                )
-                .put(name, server);
+                );
     }
 
-    private Collection<WireMockServer> getWireMockServerInstances(final ExtensionContext extensionContext) {
-        return getWireMockServerMap(extensionContext).values();
+    private WireMockServer getStartedWireMockServer(final ConfigureWireMock options) {
+        final var serverOptions = getWireMockConfiguration(options);
+        LOGGER.info("Configuring WireMockServer with name '{}' on port: '{}'", options.name(), serverOptions.portNumber());
+        final var newServer = new WireMockServer(serverOptions);
+        newServer.start();
+        LOGGER.info("Started WireMockServer with name '{}': '{}'", options.name(), newServer.baseUrl());
+        return newServer;
+    }
+
+    private WireMockConfiguration getWireMockConfiguration(final ConfigureWireMock options) {
+        final var stubLocation = StringUtils.isBlank(options.stubLocation()) ? "wiremock/" + options.name() :
+                options.stubLocation();
+        final var serverOptions = options()
+                .usingFilesUnderClasspath(stubLocation)
+                .port(options.port())
+                .notifier(new Slf4jNotifier(true));
+        if (options.extensions().length > 0) {
+            serverOptions.extensions(options.extensions());
+        }
+        applyCustomizers(options, serverOptions);
+        return serverOptions;
+    }
+
+    private void applyCustomizers(final ConfigureWireMock options, final WireMockConfiguration serverOptions) {
+        for (final var customizer : options.configurationCustomizers()) {
+            try {
+                ReflectionUtils.newInstance(customizer).customize(serverOptions, options);
+            } catch (final RuntimeException e) {
+                if (e.getCause() instanceof NoSuchMethodException) {
+                    LOGGER.error("Customizer '{}' must have a no-arg constructor", customizer, e);
+                }
+                throw e;
+            }
+        }
+    }
+
+    private void saveWireMockServerToStore(final ExtensionContext extensionContext, final String serverName,
+                                           final WireMockServer server) {
+        getWireMockServerMap(extensionContext).put(serverName, server);
+    }
+
+    private void setShutdownHookForWireMockServer(final ConfigureWireMock options, final WireMockServer server) {
+        applicationContext.registerSingleton(ShutdownEventForWiremock.class, new ShutdownEventForWiremock(server, options));
+    }
+
+    @SuppressWarnings("resource")  // "addPropertySource" returns an autocloseable which shouldn't be closed here.
+    private void injectPropertyIntoMicronautEnvironment(final String propertyName, final WireMockServer server) {
+        if (StringUtils.isBlank(propertyName)) {
+            return;
+        }
+        final var property = Map.<String, Object>of(propertyName, server.baseUrl());
+        LOGGER.debug("Adding property '{}' to Micronaut application context", property);
+        applicationContext.getEnvironment().addPropertySource(MapPropertySource.of("customSource", property));
     }
 
     private void injectWireMockInstances(final ExtensionContext extensionContext) throws IllegalAccessException {
@@ -165,32 +152,6 @@ public class WireMockMicronautExtension extends MicronautJunit5Extension {
                 }
                 annotatedField.set(testInstance, wiremock);
             }
-        }
-    }
-
-    static class Slf4jNotifier implements Notifier {
-        private static final Logger log = LoggerFactory.getLogger("WireMock");
-        private final boolean verbose;
-
-        Slf4jNotifier(boolean verbose) {
-            this.verbose = verbose;
-        }
-
-        @Override
-        public void info(final String message) {
-            if (verbose) {
-                log.info(message);
-            }
-        }
-
-        @Override
-        public void error(final String message) {
-            log.error(message);
-        }
-
-        @Override
-        public void error(final String message, final Throwable t) {
-            log.error(message, t);
         }
     }
 }

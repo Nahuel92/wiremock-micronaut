@@ -10,7 +10,6 @@ import java.lang.annotation.Target;
 
 /**
  * Enables creating WireMock servers through {@link WireMockConfigurationCustomizer}.
- *
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

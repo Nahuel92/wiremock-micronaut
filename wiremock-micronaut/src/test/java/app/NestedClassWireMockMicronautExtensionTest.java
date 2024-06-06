@@ -33,8 +33,8 @@ public class NestedClassWireMockMicronautExtensionTest {
         private WireMockServer nestedClassTodoService;
 
         @Test
-        void injectsWiremockServerToMethodParameter(@InjectWireMock("user-service") final WireMockServer wireMockServer) {
-            assertWireMockServer(wireMockServer, "user-service.url");
+        void injectsWiremockServerToMethodParameter(@InjectWireMock("user-service") final WireMockServer server) {
+            assertWireMockServer(server, "user-service.url");
         }
 
         @Test
@@ -48,13 +48,13 @@ public class NestedClassWireMockMicronautExtensionTest {
         }
 
         @Test
-        void doesNotSetPropertyWhenNotProvided(@InjectWireMock("noproperty-service") WireMockServer wireMockServer) {
-            assertThat(wireMockServer)
+        void doesNotSetPropertyWhenNotProvided(@InjectWireMock("noproperty-service") final WireMockServer server) {
+            assertThat(server)
                     .as("creates WireMock instance")
                     .isNotNull();
         }
 
-        private void assertWireMockServer(WireMockServer wireMockServer, String property) {
+        private void assertWireMockServer(final WireMockServer wireMockServer, final String property) {
             assertThat(wireMockServer)
                     .as("creates WireMock instance")
                     .isNotNull();
@@ -64,9 +64,9 @@ public class NestedClassWireMockMicronautExtensionTest {
             assertThat(wireMockServer.port())
                     .as("sets random port")
                     .isNotZero();
-            /*assertThat(environment.getProperty(property))
+            assertThat(environment.getProperty(property, String.class))
                     .as("sets Spring property")
-                    .isEqualTo(wireMockServer.baseUrl());*/
+                    .contains(wireMockServer.baseUrl());
         }
     }
 }

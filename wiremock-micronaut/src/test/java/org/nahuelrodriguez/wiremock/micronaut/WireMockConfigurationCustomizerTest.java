@@ -34,7 +34,7 @@ class WireMockConfigurationCustomizerTest {
     private static final int TODO_SERVICE_PORT = findAvailablePort();
 
     private static int findAvailablePort() {
-        try (final ServerSocket serverSocket = new ServerSocket(0)) {
+        try (final var serverSocket = new ServerSocket(0)) {
             return serverSocket.getLocalPort();
         } catch (final IOException e) {
             throw new UncheckedIOException("Failed to find available port", e);

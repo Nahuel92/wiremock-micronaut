@@ -25,8 +25,8 @@ public class WireMockMicronautExtensionTest {
     private Environment environment;
 
     @Test
-    void createsWiremockWithClassLevelConfigureWiremock(@InjectWireMock("user-service") final WireMockServer wireMockServer) {
-        assertWireMockServer(wireMockServer, "user-service.url");
+    void createsWiremockWithClassLevelConfigureWiremock(@InjectWireMock("user-service") final WireMockServer server) {
+        assertWireMockServer(server, "user-service.url");
     }
 
     @Test
@@ -35,8 +35,8 @@ public class WireMockMicronautExtensionTest {
     }
 
     @Test
-    void doesNotSetPropertyWhenNotProvided(@InjectWireMock("noproperty-service") final WireMockServer wireMockServer) {
-        assertThat(wireMockServer)
+    void doesNotSetPropertyWhenNotProvided(@InjectWireMock("noproperty-service") final WireMockServer server) {
+        assertThat(server)
                 .as("creates WireMock instance")
                 .isNotNull();
     }
