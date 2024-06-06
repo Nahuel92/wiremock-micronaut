@@ -1,9 +1,11 @@
 package app;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import io.micronaut.http.HttpHeaders;
+import io.micronaut.http.MediaType;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
-import org.assertj.core.api.AutoCloseableSoftAssertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.nahuelrodriguez.wiremock.micronaut.ConfigureWireMock;
 import org.nahuelrodriguez.wiremock.micronaut.EnableWireMock;
@@ -25,18 +27,17 @@ class TodoClientTests {
     private WireMockServer wiremock;
 
     @Test
+    @DisplayName("WireMock server should use Java stub when stubbing via the Java API")
     void successOnStubbingViaJavaAPI() {
         // given
-        wiremock.stubFor(
-                get("/").willReturn(
+        wiremock.stubFor(get("/").willReturn(
                         aResponse()
-                                .withHeader("Content-Type", "application/json")
+                                .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .withBody("""
                                         [
                                             { "id": 1, "userId": 1, "title": "my todo" },
                                             { "id": 2, "userId": 1, "title": "my todo2" }
-                                        ]
-                                        """
+                                        ]"""
                                 )
                 )
         );
@@ -49,24 +50,17 @@ class TodoClientTests {
     }
 
     @Test
+    @DisplayName("WireMock server should use files stub when stubbing via files on the file system")
     void successOnStubbingViaFilesFromCustomLocation() {
         // when
         final var results = todoClient.findAll();
 
         // then
-        try (final var softly = new AutoCloseableSoftAssertions()) {
-            softly.assertThat(results).hasSize(2);
-            softly.assertThat(results)
-                    .first()
-                    .satisfies(todo -> {
-                        assertThat(todo.id()).isEqualTo(1);
-                        assertThat(todo.title()).isEqualTo("custom location todo 1");
-                    });
-            softly.assertThat(results.get(1))
-                    .satisfies(todo -> {
-                        assertThat(todo.id()).isEqualTo(2);
-                        assertThat(todo.title()).isEqualTo("custom location todo 2");
-                    });
-        }
+        assertThat(results)
+                .hasSize(2)
+                .containsExactly(
+                        new Todo(1L, 1L, "custom location todo 1"),
+                        new Todo(2L, 1L, "custom location todo 2")
+                );
     }
 }
