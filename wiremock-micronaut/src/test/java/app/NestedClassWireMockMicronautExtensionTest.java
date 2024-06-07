@@ -27,46 +27,34 @@ public class NestedClassWireMockMicronautExtensionTest {
     private WireMockServer topLevelClassTodoService;
 
     @Nested
-    @DisplayName("Test Something")
     class NestedTest {
         @InjectWireMock("todo-service")
         private WireMockServer nestedClassTodoService;
 
         @Test
-        void injectsWiremockServerToMethodParameter(@InjectWireMock("user-service") final WireMockServer server) {
-            assertWireMockServer(server, "user-service.url");
+        @DisplayName("WireMock should be available when injected as a method param")
+        void successOnInjectingWireMockServerAsMethodParameter(@InjectWireMock("user-service") final WireMockServer server) {
+            CommonAssertions.assertWireMockServerIsConfigured(server, environment, "user-service.url");
         }
 
         @Test
-        void injectsWiremockServerToNestedClassField() {
-            assertWireMockServer(nestedClassTodoService, "todo-service.url");
+        @DisplayName("WireMock should be available when injected as a nested class field")
+        void successOnInjectingWireMockServerAsNestedClassField() {
+            CommonAssertions.assertWireMockServerIsConfigured(nestedClassTodoService, environment, "todo-service.url");
         }
 
         @Test
-        void injectsWiremockServerToTopLevelClassField() {
-            assertWireMockServer(topLevelClassTodoService, "todo-service.url");
+        @DisplayName("WireMock should be available when injected as a top level class field")
+        void successOnInjectingWireMockServerAsTopLevelClassField() {
+            CommonAssertions.assertWireMockServerIsConfigured(topLevelClassTodoService, environment, "todo-service.url");
         }
 
         @Test
-        void doesNotSetPropertyWhenNotProvided(@InjectWireMock("noproperty-service") final WireMockServer server) {
+        @DisplayName("WireMock should not set a property on the ApplicationContext if it's not provided")
+        void failureOnSettingPropertyWhenNotProvided(@InjectWireMock("noproperty-service") final WireMockServer server) {
             assertThat(server)
                     .as("creates WireMock instance")
                     .isNotNull();
-        }
-
-        private void assertWireMockServer(final WireMockServer wireMockServer, final String property) {
-            assertThat(wireMockServer)
-                    .as("creates WireMock instance")
-                    .isNotNull();
-            assertThat(wireMockServer.baseUrl())
-                    .as("WireMock baseUrl is set")
-                    .isNotNull();
-            assertThat(wireMockServer.port())
-                    .as("sets random port")
-                    .isNotZero();
-            assertThat(environment.getProperty(property, String.class))
-                    .as("sets Spring property")
-                    .contains(wireMockServer.baseUrl());
         }
     }
 }
