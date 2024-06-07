@@ -74,6 +74,6 @@ This extension was inspired (and based) on
 [WireMock Spring Boot](https://github.com/maciejwalkowiak/wiremock-spring-boot) by Maciej Walkowiak and Stefano Cordio.
 
 I encourage you to support them; and, if you appreciate the time and effort I put into making this extension for
-Micronaut, please consider to [sponsor this project](https://github.com/sponsors/nahuel92).
+Micronaut, please consider to sponsor this project (WIP).
 
 Thank you 😊
