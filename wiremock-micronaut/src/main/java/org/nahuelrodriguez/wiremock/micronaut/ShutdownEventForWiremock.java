@@ -6,6 +6,9 @@ import io.micronaut.context.event.ShutdownEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Event to stop WireMock instances when the Micronaut's ApplicationContext is shut down.
+ */
 public class ShutdownEventForWiremock implements ApplicationEventListener<ShutdownEvent> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ShutdownEventForWiremock.class);
     private final WireMockServer wireMockServer;
