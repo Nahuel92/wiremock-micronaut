@@ -3,15 +3,18 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.nahuelrodriguez.wiremock</groupId>
-    <artifactId>example</artifactId>
-    <version>${project.parent.version}</version>
+    <artifactId>wiremock-example</artifactId>
+    <version>1.0.0</version>
 
     <parent>
-        <groupId>org.nahuelrodriguez.micronaut</groupId>
+        <groupId>io.github.nahuel92</groupId>
         <artifactId>wiremock-micronaut-parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.0</version>
     </parent>
+
+    <name>WireMock Micronaut Example</name>
+    <description>Example application to show WireMock integration for Micronaut usage</description>
+    <url>https://github.com/nahuel92/wiremock-micronaut/</url>
 
     <properties>
         <jdk.version>21</jdk.version>
@@ -59,9 +62,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.nahuelrodriguez</groupId>
+            <groupId>io.github.nahuel92</groupId>
             <artifactId>wiremock-micronaut</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
