@@ -137,7 +137,7 @@
                                     <armored>true</armored>
                                 </signing>
                                 <deploy>
-                                    <maπven>
+                                    <maven>
                                         <!-- Portal Publisher API -->
                                         <mavenCentral>
                                             <sonatype>
@@ -146,7 +146,7 @@
                                                 <stagingRepositories>target/staging-deploy</stagingRepositories>
                                             </sonatype>
                                         </mavenCentral>
-                                    </maπven>
+                                    </maven>
                                 </deploy>
                             </jreleaser>
                         </configuration>
