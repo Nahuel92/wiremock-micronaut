@@ -9,7 +9,17 @@
 
 ## How to install
 
-TBD
+In your `pom.xml`, simply add the `wiremock-micronaut` dependency:
+
+```xml
+
+<dependency>
+  <groupId>io.github.nahuel92</groupId>
+  <artifactId>wiremock-micronaut</artifactId>
+  <version>1.0.4</version>
+  <scope>test</scope>
+</dependency>
+```
 
 ## How to use
 
