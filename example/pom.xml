@@ -9,7 +9,7 @@
     <parent>
         <groupId>io.github.nahuel92</groupId>
         <artifactId>wiremock-micronaut-parent</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
     </parent>
 
     <name>WireMock Micronaut Example</name>
@@ -64,7 +64,7 @@
         <dependency>
             <groupId>io.github.nahuel92</groupId>
             <artifactId>wiremock-micronaut</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
