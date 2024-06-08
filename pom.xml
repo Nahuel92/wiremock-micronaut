@@ -2,11 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.nahuelrodriguez.micronaut</groupId>
+    <groupId>io.github.nahuel92</groupId>
     <artifactId>wiremock-micronaut-parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-
+    <version>1.0.0</version>
     <packaging>pom</packaging>
+
     <properties>
         <java.version>21</java.version>
         <micronaut.version>4.4.3</micronaut.version>
@@ -21,9 +21,31 @@
     <url>https://github.com/nahuel92/wiremock-micronaut/</url>
     <inceptionYear>2024</inceptionYear>
 
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>nahuel92</id>
+            <name>Nahuel Rodríguez</name>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/nahuel92/wiremock-micronaut.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/nahuel92/wiremock-micronaut.git</developerConnection>
+        <tag>HEAD</tag>
+        <url>https://github.com/nahuel92/wiremock-micronaut</url>
+    </scm>
+
     <modules>
-        <module>wiremock-micronaut</module>
         <module>example</module>
+        <module>wiremock-micronaut</module>
     </modules>
 
     <dependencyManagement>
@@ -134,28 +156,4 @@
             </build>
         </profile>
     </profiles>
-
-    <scm>
-        <url>https://github.com/nahuel92/wiremock-micronaut</url>
-        <connection>scm:git:git://github.com/nahuel92/wiremock-micronaut.git</connection>
-        <developerConnection>
-            scm:git:ssh://git@github.com/nahuel92/wiremock-micronaut.git
-        </developerConnection>
-        <tag>HEAD</tag>
-    </scm>
-
-    <licenses>
-        <license>
-            <name>MIT License</name>
-            <url>http://www.opensource.org/licenses/mit-license.php</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <developers>
-        <developer>
-            <id>nahuel92</id>
-            <name>Nahuel Rodríguez</name>
-        </developer>
-    </developers>
 </project>
