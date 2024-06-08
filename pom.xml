@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.nahuel92</groupId>
     <artifactId>wiremock-micronaut-parent</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -132,6 +132,7 @@
                         <artifactId>jreleaser-maven-plugin</artifactId>
                         <version>1.12.0</version>
                         <configuration>
+                            <skip>true</skip>
                             <jreleaser>
                                 <signing>
                                     <active>ALWAYS</active>
