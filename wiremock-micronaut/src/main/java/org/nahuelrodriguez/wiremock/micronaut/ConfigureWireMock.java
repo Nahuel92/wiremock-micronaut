@@ -27,11 +27,11 @@ public @interface ConfigureWireMock {
     String name();
 
     /**
-     * The name of Micronaut property to inject the {@link WireMockServer#baseUrl()}
+     * Names of Micronaut properties to inject the {@link WireMockServer#baseUrl()}.
      *
-     * @return the name of Micronaut property to inject the {@link WireMockServer#baseUrl()}
+     * @return names of Micronaut properties to inject the {@link WireMockServer#baseUrl()}.
      */
-    String property() default "";
+    String[] properties() default {};
 
     /**
      * The location of WireMock stub files. By default, stubs are resolved from classpath location

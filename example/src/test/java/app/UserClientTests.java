@@ -16,7 +16,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 
 @MicronautTest
-@EnableWireMock(@ConfigureWireMock(name = "user-client", property = "user-client.url"))
+@EnableWireMock(@ConfigureWireMock(name = "user-client", properties = "user-client.url"))
 class UserClientTests {
     @Inject
     private UserClient userClient;

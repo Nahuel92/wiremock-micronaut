@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @MicronautTest
 @EnableWireMock(
-        @ConfigureWireMock(name = "todo-client", property = "todo-client.url", stubLocation = "custom-location")
+        @ConfigureWireMock(name = "todo-client", properties = "todo-client.url", stubLocation = "custom-location")
 )
 class TodoClientTests {
     @Inject

@@ -21,8 +21,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 
 @MicronautTest
 @EnableWireMock({
-        @ConfigureWireMock(name = "user-client", property = "user-client.url"),
-        @ConfigureWireMock(name = "todo-service", property = "todo-client.url")
+        @ConfigureWireMock(name = "user-client", properties = "user-client.url"),
+        @ConfigureWireMock(name = "todo-service", properties = "todo-client.url")
 })
 class TodoControllerTests {
     @InjectWireMock("todo-service")

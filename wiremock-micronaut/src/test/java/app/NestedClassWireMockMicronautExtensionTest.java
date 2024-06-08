@@ -15,8 +15,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @MicronautTest
 @EnableWireMock({
-        @ConfigureWireMock(name = "user-service", property = "user-service.url"),
-        @ConfigureWireMock(name = "todo-service", property = "todo-service.url"),
+        @ConfigureWireMock(name = "user-service", properties = "user-service.url"),
+        @ConfigureWireMock(name = "todo-service", properties = "todo-service.url"),
         @ConfigureWireMock(name = "noproperty-service")
 })
 public class NestedClassWireMockMicronautExtensionTest {

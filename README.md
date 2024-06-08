@@ -14,10 +14,10 @@ In your `pom.xml`, simply add the `wiremock-micronaut` dependency:
 ```xml
 
 <dependency>
-  <groupId>io.github.nahuel92</groupId>
-  <artifactId>wiremock-micronaut</artifactId>
-  <version>1.0.4</version>
-  <scope>test</scope>
+    <groupId>io.github.nahuel92</groupId>
+    <artifactId>wiremock-micronaut</artifactId>
+    <version>1.0.4</version>
+    <scope>test</scope>
 </dependency>
 ```
 
@@ -29,25 +29,25 @@ like `@MicronautTest`:
 ```java
 
 @MicronautTest
-@EnableWireMock(@ConfigureWireMock(name = "user-service", property = "user-client.url"))
+@EnableWireMock(@ConfigureWireMock(name = "user-service", properties = "user-client.url"))
 class TodoControllerTests {
-  @InjectWireMock("user-service")
-  private WireMockServer wiremock;
+    @InjectWireMock("user-service")
+    private WireMockServer wiremock;
 
-  @Value("${user-client.url}")
-  private String wiremockUrl; // will contain the base URL for this WireMock instance.
+    @Value("${user-client.url}")
+    private String wiremockUrl; // will contain the base URL for this WireMock instance.
 
-  @Test
-  void successOnTestingYourSUT() {
-    // given
-    wiremock.stubFor(...)
+    @Test
+    void yourSUTTest() {
+        // given
+        wiremock.stubFor(...)
 
-      // then
-    // execute your subject under test
+        // then
+        // execute your subject under test
 
-    // then
-    // your assertions...
-  }
+        // then
+        // your assertions...
+    }
 }
 ```
 
@@ -58,6 +58,63 @@ class TodoControllerTests {
 
 > **Note:** `WireMockServer` instances aren't added as beans to the Micronaut application context. Instead, instances
 > are kept in a separate store associated with the application context used by tests.
+
+#### Single Property Injection
+
+The following example shows how to use the *Single Property Injection*, which means each service is bound to an
+exclusive `WireMockServer` instance. You get maximum isolation between your services' mocks at the expense of a more
+complex test setup.
+
+```java
+
+@MicronautTest
+@EnableWireMock({
+        @ConfigureWireMock(name = "foo-service", properties = "app.client-apis.foo.base-path"}),
+        @ConfigureWireMock(name = "bar-service", properties = "app.client-apis.bar.base-path"}),
+        @ConfigureWireMock(name = "mojo-service", properties = "app.client-apis.mojo.base-path"})
+})
+class YourTest {
+    @InjectWireMock("foo-service")
+    private WireMockServer fooService;
+
+    @InjectWireMock("bar-service")
+    private WireMockServer barService;
+
+    @InjectWireMock("mojo-service")
+    private WireMockServer mojoService;
+
+    @Test
+    void yourSUTTest() {
+        // your test code
+    }
+}
+```
+
+#### Multiple Property Injection
+
+The following example shows how to use the *Multiple Property Injection*, which means all services are bound to a shared
+`WireMockServer` instance. You give up on isolation between your services' mocks, but you get a less complex test setup.
+
+```java
+
+@MicronautTest
+@EnableWireMock(
+        @ConfigureWireMock(name = "services", properties = {
+                "app.client-apis.foo.base-path",
+                "app.client-apis.bar.base-path",
+                "app.client-apis.mojo.base-path"
+        })
+)
+class YourTest {
+    @InjectWireMock("services")
+    private WireMockServer services;
+
+    @Test
+    void yourSUTTest() {
+        // your test code
+    }
+}
+```
 
 ## Registering WireMock extensions
 
