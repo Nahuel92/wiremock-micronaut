@@ -4,12 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>wiremock-example</artifactId>
-    <version>1.0.4</version>
+    <version>1.1.0</version>
 
     <parent>
         <groupId>io.github.nahuel92</groupId>
         <artifactId>wiremock-micronaut-parent</artifactId>
-        <version>1.0.4</version>
+        <version>1.1.0</version>
     </parent>
 
     <name>WireMock Micronaut Example</name>
@@ -19,7 +19,7 @@
     <properties>
         <jdk.version>21</jdk.version>
         <micronaut.core.version>4.4.3</micronaut.core.version>
-        <wiremock.micronaut.version>1.0.4</wiremock.micronaut.version>
+        <wiremock.micronaut.version>1.1.0</wiremock.micronaut.version>
     </properties>
 
     <dependencies>

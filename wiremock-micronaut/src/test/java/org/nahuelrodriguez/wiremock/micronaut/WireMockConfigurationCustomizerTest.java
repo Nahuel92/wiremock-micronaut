@@ -23,12 +23,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 @EnableWireMock({
         @ConfigureWireMock(
                 name = "user-service",
-                property = "user-service.url",
+                properties = "user-service.url",
                 configurationCustomizers = WireMockConfigurationCustomizerTest.SampleConfigurationCustomizer.class
         ),
         @ConfigureWireMock(
                 name = "todo-service",
-                property = "todo-service.url",
+                properties = "todo-service.url",
                 configurationCustomizers = WireMockConfigurationCustomizerTest.SampleConfigurationCustomizer.class
         ),
 })

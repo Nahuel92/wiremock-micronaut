@@ -70,9 +70,9 @@ public class WireMockMicronautExtension extends MicronautJunit5Extension {
             return;
         }
         final var newServer = getStartedWireMockServer(options);
-        saveWireMockServerToStore(extensionContext, options.name(), newServer);
-        setShutdownHookForWireMockServer(options, newServer);
-        injectPropertyIntoMicronautEnvironment(options.property(), newServer);
+        saveWireMockServerToStore(extensionContext, newServer, options.name());
+        setShutdownHookForWireMockServer(newServer, options);
+        injectPropertyIntoMicronautEnvironment(newServer, options.properties());
     }
 
     @SuppressWarnings("unchecked")  // "get" doesn't support generics usage
@@ -121,23 +121,26 @@ public class WireMockMicronautExtension extends MicronautJunit5Extension {
         }
     }
 
-    private void saveWireMockServerToStore(final ExtensionContext extensionContext, final String serverName,
-                                           final WireMockServer server) {
+    private void saveWireMockServerToStore(final ExtensionContext extensionContext, final WireMockServer server,
+                                           final String serverName) {
         getWireMockServerMap(extensionContext).put(serverName, server);
     }
 
-    private void setShutdownHookForWireMockServer(final ConfigureWireMock options, final WireMockServer server) {
+    private void setShutdownHookForWireMockServer(final WireMockServer server, final ConfigureWireMock options) {
         applicationContext.registerSingleton(ShutdownEventForWiremock.class, new ShutdownEventForWiremock(server, options));
     }
 
     @SuppressWarnings("resource")  // "addPropertySource" returns an autocloseable which shouldn't be closed here.
-    private void injectPropertyIntoMicronautEnvironment(final String propertyName, final WireMockServer server) {
-        if (StringUtils.isBlank(propertyName)) {
-            return;
+    private void injectPropertyIntoMicronautEnvironment(final WireMockServer server, final String... propertyNames) {
+        for (final var propertyName : propertyNames) {
+            if (StringUtils.isBlank(propertyName)) {
+                continue;
+            }
+            final var property = Map.<String, Object>of(propertyName, server.baseUrl());
+            LOGGER.debug("Adding property '{}' to Micronaut application context", property);
+            final var customSource = MapPropertySource.of("wiremockExtensionSource", property);
+            applicationContext.getEnvironment().addPropertySource(customSource);
         }
-        final var property = Map.<String, Object>of(propertyName, server.baseUrl());
-        LOGGER.debug("Adding property '{}' to Micronaut application context", property);
-        applicationContext.getEnvironment().addPropertySource(MapPropertySource.of("customSource", property));
     }
 
     private void injectWireMockInstances(final ExtensionContext extensionContext) throws IllegalAccessException {
