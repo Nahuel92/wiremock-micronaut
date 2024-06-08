@@ -130,6 +130,8 @@
                     <plugin>
                         <groupId>org.jreleaser</groupId>
                         <artifactId>jreleaser-maven-plugin</artifactId>
+                        <version>1.12.0</version>
+                        <inherited>false</inherited>
                         <configuration>
                             <jreleaser>
                                 <signing>
@@ -144,6 +146,7 @@
                                                 <active>ALWAYS</active>
                                                 <url>https://central.sonatype.com/api/v1/publisher</url>
                                                 <stagingRepositories>target/staging-deploy</stagingRepositories>
+                                                <retryDelay>20</retryDelay>
                                             </sonatype>
                                         </mavenCentral>
                                     </maven>
