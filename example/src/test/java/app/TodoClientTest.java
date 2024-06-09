@@ -1,10 +1,8 @@
 package app;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import io.github.nahuel92.wiremock.micronaut.ConfigureWireMock;
 import io.github.nahuel92.wiremock.micronaut.EnableWireMock;
-import io.github.nahuel92.wiremock.micronaut.InjectWireMock;
 import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.MediaType;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
@@ -28,14 +26,11 @@ class TodoClientTest {
     @Nested
     @DisplayName("WireMock server instances must be accessed via injected fields")
     class InjectWireMockServerAccessTest {
-        @InjectWireMock("todo-client")
-        private WireMockServer wiremock;
-
         @Test
         @DisplayName("WireMock server should use Java stub when stubbing via the Java API")
         void successOnStubbingViaJavaAPI() {
             // given
-            wiremock.stubFor(get("/").willReturn(
+            WireMock.stubFor(get("/").willReturn(
                             aResponse()
                                     .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                     .withBody("""

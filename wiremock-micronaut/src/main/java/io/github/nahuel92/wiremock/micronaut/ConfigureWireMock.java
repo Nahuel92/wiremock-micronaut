@@ -42,10 +42,11 @@ public @interface ConfigureWireMock {
 
     /**
      * The location of WireMock stub files.
-     * By default, classpath resolution is used. This can be changed by setting {@link #stubLocationOnClasspath} to
-     * false, which makes WireMock to resolve stub files from a directory on the file system instead.
+     * By default, classpath location is used to read stubs. This can be changed by setting
+     * {@link #stubLocationOnClasspath} to false, which makes WireMock to use a directory location to get stub files
+     * instead.
      * <p>
-     * When {@link #stubLocationOnClasspath} is true, stubs are resolved from classpath location
+     * When {@link #stubLocationOnClasspath} is true, classpath location is used to get stubs
      * <code>wiremock/server-name/mappings/</code>, and, if provided, stubs are resolved from
      * <code>stub-location/mappings/</code>.
      *
