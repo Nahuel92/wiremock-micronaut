@@ -41,14 +41,27 @@ public @interface ConfigureWireMock {
     String portProperty() default "wiremock.server.port";
 
     /**
-     * The location of WireMock stub files. By default, stubs are resolved from classpath location
-     * <code>wiremock-server-name/mappings/</code>.
+     * The location of WireMock stub files.
+     * By default, classpath location is used to read stubs. This can be changed by setting
+     * {@link #stubLocationOnClasspath} to false, which makes WireMock to use a directory location to get stub files
+     * instead.
      * <p>
-     * If provided, stubs are resolved from <code>stub-location/mappings/</code>.
+     * When {@link #stubLocationOnClasspath} is true, classpath location is used to get stubs
+     * <code>wiremock/server-name/mappings/</code>, and, if provided, stubs are resolved from
+     * <code>stub-location/mappings/</code>.
      *
      * @return the stub location
      */
     String stubLocation() default "";
+
+    /**
+     * Allows user to specify if the mappings should be loaded from classpath or a directory. The location is specified
+     * with {@link #stubLocation()}.
+     *
+     * @return true if {@link #stubLocation} should point to a classpath directory and false if it should point to a
+     * directory on the file system.
+     */
+    boolean stubLocationOnClasspath() default true;
 
     /**
      * WireMock extensions to register in {@link WireMockServer}.

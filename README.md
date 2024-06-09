@@ -12,11 +12,10 @@
 In your `pom.xml`, simply add the `wiremock-micronaut` dependency:
 
 ```xml
-
 <dependency>
     <groupId>io.github.nahuel92</groupId>
     <artifactId>wiremock-micronaut</artifactId>
-    <version>1.1.0</version>
+  <version>1.2.0</version>
     <scope>test</scope>
 </dependency>
 ```
@@ -27,9 +26,13 @@ Use `@EnableWireMock` with `@ConfigureWireMock` with tests annotated that use `M
 like `@MicronautTest`:
 
 ```java
-
 @MicronautTest
-@EnableWireMock(@ConfigureWireMock(name = "user-service", properties = "user-client.url"))
+@EnableWireMock(
+        @ConfigureWireMock(
+                name = "user-service",
+                properties = "user-client.url"
+        )
+)
 class TodoControllerTests {
     @InjectWireMock("user-service")
     private WireMockServer wiremock;
@@ -40,7 +43,7 @@ class TodoControllerTests {
     @Test
     void yourSUTTest() {
         // given
-        wiremock.stubFor(...)
+      wiremock.stubFor(/*Your request*/);
 
         // then
         // execute your subject under test
@@ -66,12 +69,20 @@ exclusive `WireMockServer` instance. You get maximum isolation between your serv
 complex test setup.
 
 ```java
-
 @MicronautTest
 @EnableWireMock({
-        @ConfigureWireMock(name = "foo-service", properties = "app.client-apis.foo.base-path"),
-        @ConfigureWireMock(name = "bar-service", properties = "app.client-apis.bar.base-path"),
-        @ConfigureWireMock(name = "mojo-service", properties = "app.client-apis.mojo.base-path")
+        @ConfigureWireMock(
+                name = "foo-service",
+                properties = "app.client-apis.foo.base-path"
+        ),
+        @ConfigureWireMock(
+                name = "bar-service",
+                properties = "app.client-apis.bar.base-path"
+        ),
+        @ConfigureWireMock(
+                name = "mojo-service",
+                properties = "app.client-apis.mojo.base-path"
+        )
 })
 class YourTest {
     @InjectWireMock("foo-service")
@@ -96,14 +107,16 @@ The following example shows how to use the *Multiple Property Injection*, which 
 `WireMockServer` instance. You give up on isolation between your services' mocks, but you get a less complex test setup.
 
 ```java
-
 @MicronautTest
 @EnableWireMock(
-        @ConfigureWireMock(name = "services", properties = {
-                "app.client-apis.foo.base-path",
-                "app.client-apis.bar.base-path",
-                "app.client-apis.mojo.base-path"
-        })
+        @ConfigureWireMock(
+                name = "services",
+                properties = {
+                        "app.client-apis.foo.base-path",
+                        "app.client-apis.bar.base-path",
+                        "app.client-apis.mojo.base-path"
+                }
+        )
 )
 class YourTest {
     @InjectWireMock("services")
@@ -116,16 +129,22 @@ class YourTest {
 }
 ```
 
-### Using `WireMock` client
+### Using the `WireMock` client
 
-Usually, you'll configure your test as follows:
+Usually, you'll configure your tests as follows:
 
 ```java
-
 @MicronautTest
 @EnableWireMock({
-        @ConfigureWireMock(name = "todo-client", properties = "todo-client.url", stubLocation = "custom-location"),
-        @ConfigureWireMock(name = "user-client", properties = "user-client.url")
+        @ConfigureWireMock(
+                name = "todo-client",
+                properties = "todo-client.url",
+                stubLocation = "custom-location"
+        ),
+        @ConfigureWireMock(
+                name = "user-client",
+                properties = "user-client.url"
+        )
 })
 @DisplayName("WireMock server instances must be accessed via injected fields (optional if only one is needed)")
 class YourTest {
@@ -152,7 +171,11 @@ Or, if you need only one server:
 
 @MicronautTest
 @EnableWireMock(
-        @ConfigureWireMock(name = "todo-client", properties = "todo-client.url", stubLocation = "custom-location")
+        @ConfigureWireMock(
+                name = "todo-client",
+                properties = "todo-client.url",
+                stubLocation = "custom-location"
+        )
 )
 @DisplayName("WireMock server instances must be accessed via injected fields (optional if only one is needed)")
 class YourTest {
@@ -170,13 +193,16 @@ class YourTest {
 ```
 
 In the previous situation, when the test only requires exactly one WireMock server instance, we can simplify it a bit.
-In this case, the `WireMock` class can be used to configure your stubs:
+In this case, the `WireMock` client class can be used to configure your stubs:
 
 ```java
-
 @MicronautTest
 @EnableWireMock(
-        @ConfigureWireMock(name = "todo-client", properties = "todo-client.url", stubLocation = "custom-location")
+        @ConfigureWireMock(
+                name = "todo-client",
+                properties = "todo-client.url",
+                stubLocation = "custom-location"
+        )
 )
 @DisplayName("When exactly one WireMock server instance is configured, it can be accessed statically via the 'WireMock' class")
 class YourTest {
@@ -190,12 +216,72 @@ class YourTest {
 }
 ```
 
+### Stub location configuration
+
+By default, classpath location is used to get stubs:
+
+```java
+
+@MicronautTest
+@EnableWireMock(
+        @ConfigureWireMock(
+                name = "todo-client",
+                properties = "todo-client.url",
+                stubLocation = "a-directory-on-the-classpath" // By default, the classpath is used
+        )
+)
+class YourTest {
+  @Inject
+  private TodoClient todoClient;
+
+  @Test
+  @DisplayName("WireMock should use a directory on the classpath as the stub location")
+  void yourSUTTest() {
+    // when
+    final var results = todoClient.findAll();
+
+    //then
+    // your test assertions
+  }
+}
+```
+
+But sometimes you may want to use any directory on the file system.
+To achieve that, you can override a property called `stubLocationOnClasspath` on the `@ConfigureWireMock`:
+
+```java
+
+@MicronautTest
+@EnableWireMock(
+        @ConfigureWireMock(
+                name = "todo-client",
+                properties = "todo-client.url",
+                stubLocation = "a-directory-on-the-file-system",
+                stubLocationOnClasspath = false
+        )
+)
+class YourTest {
+  @Inject
+  private TodoClient todoClient;
+
+  @Test
+  @DisplayName("WireMock should use a directory on the file system as the stub location")
+  void yourSUTTest() {
+    // when
+    final var results = todoClient.findAll();
+
+    //then
+    // your test assertions
+  }
+}
+```
+
 ## Registering WireMock extensions
 
 WireMock extensions can be registered independently with each `@ConfigureWireMock`:
 
 ```java
-@ConfigureWireMock(name = "...", property = "...", extensions = {...})
+@ConfigureWireMock(name = "...", property = "...", extensions = {/*...*/})
 ```
 
 ## Customizing mappings directory
