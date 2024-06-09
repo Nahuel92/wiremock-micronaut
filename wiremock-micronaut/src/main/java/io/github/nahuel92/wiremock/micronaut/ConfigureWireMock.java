@@ -1,4 +1,4 @@
-package org.nahuelrodriguez.wiremock.micronaut;
+package io.github.nahuel92.wiremock.micronaut;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -32,6 +32,13 @@ public @interface ConfigureWireMock {
      * @return names of Micronaut properties to inject the {@link WireMockServer#baseUrl()}.
      */
     String[] properties() default {};
+
+    /**
+     * The name of Micronaut property to inject the {@link WireMockServer#port()}
+     *
+     * @return the name of Micronaut property to inject the {@link WireMockServer#port()}
+     */
+    String portProperty() default "wiremock.server.port";
 
     /**
      * The location of WireMock stub files. By default, stubs are resolved from classpath location

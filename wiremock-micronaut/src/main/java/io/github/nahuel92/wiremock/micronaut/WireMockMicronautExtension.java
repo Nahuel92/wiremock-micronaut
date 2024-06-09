@@ -1,6 +1,7 @@
-package org.nahuelrodriguez.wiremock.micronaut;
+package io.github.nahuel92.wiremock.micronaut;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Slf4jNotifier;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import io.micronaut.context.env.MapPropertySource;
@@ -58,21 +59,25 @@ public class WireMockMicronautExtension extends MicronautJunit5Extension {
         for (final var enableWireMock : enableWireMocks) {
             final var configureWireMocks = enableWireMock.value();
             for (final var options : configureWireMocks) {
-                resolveOrCreateWireMockServer(extensionContext, options);
+                final var wireMockServer = resolveOrCreateWireMockServer(extensionContext, options);
+                if (configureWireMocks.length == 1) {
+                    WireMock.configureFor(wireMockServer.port());
+                }
             }
         }
     }
 
-    private void resolveOrCreateWireMockServer(final ExtensionContext extensionContext, final ConfigureWireMock options) {
+    private WireMockServer resolveOrCreateWireMockServer(final ExtensionContext extensionContext, final ConfigureWireMock options) {
         final var wireMockServer = getWireMockServerMap(extensionContext).get(options.name());
         if (wireMockServer != null && wireMockServer.isRunning()) {
             LOGGER.info("WireMockServer with name '{}' is already configured", options.name());
-            return;
+            return wireMockServer;
         }
         final var newServer = getStartedWireMockServer(options);
         saveWireMockServerToStore(extensionContext, newServer, options.name());
         setShutdownHookForWireMockServer(newServer, options);
-        injectPropertyIntoMicronautEnvironment(newServer, options.properties());
+        injectPropertyIntoMicronautEnvironment(newServer, options);
+        return newServer;
     }
 
     @SuppressWarnings("unchecked")  // "get" doesn't support generics usage
@@ -131,14 +136,17 @@ public class WireMockMicronautExtension extends MicronautJunit5Extension {
     }
 
     @SuppressWarnings("resource")  // "addPropertySource" returns an autocloseable which shouldn't be closed here.
-    private void injectPropertyIntoMicronautEnvironment(final WireMockServer server, final String... propertyNames) {
-        for (final var propertyName : propertyNames) {
+    private void injectPropertyIntoMicronautEnvironment(final WireMockServer server, final ConfigureWireMock options) {
+        for (final var propertyName : options.properties()) {
             if (StringUtils.isBlank(propertyName)) {
                 continue;
             }
-            final var property = Map.<String, Object>of(propertyName, server.baseUrl());
-            LOGGER.debug("Adding property '{}' to Micronaut application context", property);
-            final var customSource = MapPropertySource.of("wiremockExtensionSource", property);
+            final var propertiesToAdd = Map.<String, Object>ofEntries(
+                    Map.entry(propertyName, server.baseUrl()),
+                    Map.entry(options.portProperty(), server.port())
+            );
+            LOGGER.debug("Adding properties '{}' to Micronaut application context", propertiesToAdd);
+            final var customSource = MapPropertySource.of("wiremockExtensionSource", propertiesToAdd);
             applicationContext.getEnvironment().addPropertySource(customSource);
         }
     }
