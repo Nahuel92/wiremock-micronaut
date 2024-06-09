@@ -77,6 +77,8 @@ public class WireMockMicronautExtensionTest {
                         .contains(userServiceWireMockServer.baseUrl());
                 softly.assertThat(environment.getProperty("todo-service.url", String.class))
                         .contains(userServiceWireMockServer.baseUrl());
+                assertThat(environment.getProperty("wiremock.server.port", Integer.class))
+                        .as("Sets Micronaut port property");
             }
         }
     }

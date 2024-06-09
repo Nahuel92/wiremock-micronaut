@@ -67,6 +67,7 @@ public class NestedClassWireMockMicronautExtensionTest {
         @Test
         @DisplayName("WireMock should not set a property on the ApplicationContext if it's not provided")
         void failureOnSettingPropertyWhenNotProvided(@InjectWireMock("noproperty-service") final WireMockServer server) {
+            // expect
             assertThat(server)
                     .as("creates WireMock instance")
                     .isNotNull();
