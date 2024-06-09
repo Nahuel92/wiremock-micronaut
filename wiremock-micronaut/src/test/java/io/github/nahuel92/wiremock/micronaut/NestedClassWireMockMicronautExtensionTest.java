@@ -1,4 +1,4 @@
-package app;
+package io.github.nahuel92.wiremock.micronaut;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import io.micronaut.context.env.Environment;
@@ -7,9 +7,6 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.nahuelrodriguez.wiremock.micronaut.ConfigureWireMock;
-import org.nahuelrodriguez.wiremock.micronaut.EnableWireMock;
-import org.nahuelrodriguez.wiremock.micronaut.InjectWireMock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

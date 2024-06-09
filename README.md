@@ -59,7 +59,7 @@ class TodoControllerTests {
 > **Note:** `WireMockServer` instances aren't added as beans to the Micronaut application context. Instead, instances
 > are kept in a separate store associated with the application context used by tests.
 
-#### Single Property Injection
+### Single Property Injection
 
 The following example shows how to use the *Single Property Injection*, which means each service is bound to an
 exclusive `WireMockServer` instance. You get maximum isolation between your services' mocks at the expense of a more
@@ -90,7 +90,7 @@ class YourTest {
 }
 ```
 
-#### Multiple Property Injection
+### Multiple Property Injection
 
 The following example shows how to use the *Multiple Property Injection*, which means all services are bound to a shared
 `WireMockServer` instance. You give up on isolation between your services' mocks, but you get a less complex test setup.
@@ -113,6 +113,80 @@ class YourTest {
     void yourSUTTest() {
         // your test code
     }
+}
+```
+
+### Using `WireMock` client
+
+Usually, you'll configure your test as follows:
+
+```java
+
+@MicronautTest
+@EnableWireMock({
+        @ConfigureWireMock(name = "todo-client", properties = "todo-client.url", stubLocation = "custom-location"),
+        @ConfigureWireMock(name = "user-client", properties = "user-client.url")
+})
+@DisplayName("WireMock server instances must be accessed via injected fields (optional if only one is needed)")
+class YourTest {
+  @InjectWireMock("todo-service")
+  private WireMockServer todoService;
+
+  @InjectWireMock("user-client")
+  private WireMockServer userService;
+
+  @Test
+  void yourSUTTest() {
+    // given
+    todoService.stubFor(get("/").willReturn(ok()));
+    userService.stubFor(get("/").willReturn(ok()));
+
+    // your test code
+  }
+}
+```
+
+Or, if you need only one server:
+
+```java
+
+@MicronautTest
+@EnableWireMock(
+        @ConfigureWireMock(name = "todo-client", properties = "todo-client.url", stubLocation = "custom-location")
+)
+@DisplayName("WireMock server instances must be accessed via injected fields (optional if only one is needed)")
+class YourTest {
+  @InjectWireMock("todo-service")
+  private WireMockServer todoService;
+
+  @Test
+  void yourSUTTest() {
+    // given
+    todoService.stubFor(get("/").willReturn(ok()));
+
+    // your test code
+  }
+}
+```
+
+In the previous situation, when the test only requires exactly one WireMock server instance, we can simplify it a bit.
+In this case, the `WireMock` class can be used to configure your stubs:
+
+```java
+
+@MicronautTest
+@EnableWireMock(
+        @ConfigureWireMock(name = "todo-client", properties = "todo-client.url", stubLocation = "custom-location")
+)
+@DisplayName("When exactly one WireMock server instance is configured, it can be accessed statically via the 'WireMock' class")
+class YourTest {
+  @Test
+  void yourSUTTest() {
+    // given
+    WireMock.stubFor(get("/").willReturn(ok()));
+
+    // your test code
+  }
 }
 ```
 

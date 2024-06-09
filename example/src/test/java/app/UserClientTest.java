@@ -1,6 +1,9 @@
 package app;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import io.github.nahuel92.wiremock.micronaut.ConfigureWireMock;
+import io.github.nahuel92.wiremock.micronaut.EnableWireMock;
+import io.github.nahuel92.wiremock.micronaut.InjectWireMock;
 import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.MediaType;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
@@ -8,16 +11,13 @@ import jakarta.inject.Inject;
 import org.assertj.core.api.AutoCloseableSoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.nahuelrodriguez.wiremock.micronaut.ConfigureWireMock;
-import org.nahuelrodriguez.wiremock.micronaut.EnableWireMock;
-import org.nahuelrodriguez.wiremock.micronaut.InjectWireMock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 
 @MicronautTest
 @EnableWireMock(@ConfigureWireMock(name = "user-client", properties = "user-client.url"))
-class UserClientTests {
+class UserClientTest {
     @Inject
     private UserClient userClient;
 

@@ -1,4 +1,4 @@
-package org.nahuelrodriguez.wiremock.micronaut;
+package io.github.nahuel92.wiremock.micronaut;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import io.micronaut.context.event.ApplicationEventListener;
