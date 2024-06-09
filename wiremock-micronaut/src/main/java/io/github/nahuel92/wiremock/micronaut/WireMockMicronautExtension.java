@@ -100,17 +100,25 @@ public class WireMockMicronautExtension extends MicronautJunit5Extension {
     }
 
     private WireMockConfiguration getWireMockConfiguration(final ConfigureWireMock options) {
-        final var stubLocation = StringUtils.isBlank(options.stubLocation()) ? "wiremock/" + options.name() :
-                options.stubLocation();
         final var serverOptions = options()
-                .usingFilesUnderClasspath(stubLocation)
                 .port(options.port())
                 .notifier(new Slf4jNotifier(true));
         if (options.extensions().length > 0) {
             serverOptions.extensions(options.extensions());
         }
+        resolveStubLocation(options, serverOptions);
         applyCustomizers(options, serverOptions);
         return serverOptions;
+    }
+
+    private void resolveStubLocation(final ConfigureWireMock options, final WireMockConfiguration serverOptions) {
+        if (options.stubLocationOnClasspath()) {
+            final var stubLocation = StringUtils.isBlank(options.stubLocation()) ? "wiremock/" + options.name() :
+                    options.stubLocation();
+            serverOptions.usingFilesUnderClasspath(stubLocation);
+            return;
+        }
+        serverOptions.usingFilesUnderDirectory(options.stubLocation());
     }
 
     private void applyCustomizers(final ConfigureWireMock options, final WireMockConfiguration serverOptions) {
