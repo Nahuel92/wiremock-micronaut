@@ -69,9 +69,9 @@ complex test setup.
 
 @MicronautTest
 @EnableWireMock({
-        @ConfigureWireMock(name = "foo-service", properties = "app.client-apis.foo.base-path"}),
-        @ConfigureWireMock(name = "bar-service", properties = "app.client-apis.bar.base-path"}),
-        @ConfigureWireMock(name = "mojo-service", properties = "app.client-apis.mojo.base-path"})
+        @ConfigureWireMock(name = "foo-service", properties = "app.client-apis.foo.base-path"),
+        @ConfigureWireMock(name = "bar-service", properties = "app.client-apis.bar.base-path"),
+        @ConfigureWireMock(name = "mojo-service", properties = "app.client-apis.mojo.base-path")
 })
 class YourTest {
     @InjectWireMock("foo-service")
