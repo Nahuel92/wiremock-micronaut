@@ -76,7 +76,7 @@ public class WireMockMicronautExtension extends MicronautJunit5Extension {
         final var newServer = getStartedWireMockServer(options);
         saveWireMockServerToStore(extensionContext, newServer, options.name());
         setShutdownHookForWireMockServer(newServer, options);
-        injectPropertyIntoMicronautEnvironment(newServer, options.properties());
+        injectPropertyIntoMicronautEnvironment(newServer, options);
         return newServer;
     }
 
@@ -136,14 +136,17 @@ public class WireMockMicronautExtension extends MicronautJunit5Extension {
     }
 
     @SuppressWarnings("resource")  // "addPropertySource" returns an autocloseable which shouldn't be closed here.
-    private void injectPropertyIntoMicronautEnvironment(final WireMockServer server, final String... propertyNames) {
-        for (final var propertyName : propertyNames) {
+    private void injectPropertyIntoMicronautEnvironment(final WireMockServer server, final ConfigureWireMock options) {
+        for (final var propertyName : options.properties()) {
             if (StringUtils.isBlank(propertyName)) {
                 continue;
             }
-            final var property = Map.<String, Object>of(propertyName, server.baseUrl());
-            LOGGER.debug("Adding property '{}' to Micronaut application context", property);
-            final var customSource = MapPropertySource.of("wiremockExtensionSource", property);
+            final var propertiesToAdd = Map.<String, Object>ofEntries(
+                    Map.entry(propertyName, server.baseUrl()),
+                    Map.entry(options.portProperty(), server.port())
+            );
+            LOGGER.debug("Adding properties '{}' to Micronaut application context", propertiesToAdd);
+            final var customSource = MapPropertySource.of("wiremockExtensionSource", propertiesToAdd);
             applicationContext.getEnvironment().addPropertySource(customSource);
         }
     }

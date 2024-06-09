@@ -12,8 +12,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @MicronautTest
 @EnableWireMock({
-        @ConfigureWireMock(name = "user-service", properties = "user-service.url"),
-        @ConfigureWireMock(name = "todo-service", properties = "todo-service.url"),
+        @ConfigureWireMock(name = "user-service", properties = "user-service.url", portProperty = "user-service.port"),
+        @ConfigureWireMock(name = "todo-service", properties = "todo-service.url", portProperty = "todo-service.port"),
         @ConfigureWireMock(name = "noproperty-service")
 })
 public class NestedClassWireMockMicronautExtensionTest {
@@ -31,19 +31,37 @@ public class NestedClassWireMockMicronautExtensionTest {
         @Test
         @DisplayName("WireMock should be available when injected as a method param")
         void successOnInjectingWireMockServerAsMethodParameter(@InjectWireMock("user-service") final WireMockServer server) {
-            CommonAssertions.assertWireMockServerIsConfigured(server, environment, "user-service.url");
+            // expect
+            CommonAssertions.assertWireMockServerIsConfigured(
+                    server,
+                    environment,
+                    "user-service.url",
+                    "user-service.port"
+            );
         }
 
         @Test
         @DisplayName("WireMock should be available when injected as a nested class field")
         void successOnInjectingWireMockServerAsNestedClassField() {
-            CommonAssertions.assertWireMockServerIsConfigured(nestedClassTodoService, environment, "todo-service.url");
+            // expect
+            CommonAssertions.assertWireMockServerIsConfigured(
+                    nestedClassTodoService,
+                    environment,
+                    "todo-service.url",
+                    "todo-service.port"
+            );
         }
 
         @Test
         @DisplayName("WireMock should be available when injected as a top level class field")
         void successOnInjectingWireMockServerAsTopLevelClassField() {
-            CommonAssertions.assertWireMockServerIsConfigured(topLevelClassTodoService, environment, "todo-service.url");
+            // expect
+            CommonAssertions.assertWireMockServerIsConfigured(
+                    topLevelClassTodoService,
+                    environment,
+                    "todo-service.url",
+                    "todo-service.port"
+            );
         }
 
         @Test

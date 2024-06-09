@@ -14,8 +14,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class WireMockMicronautExtensionTest {
     @MicronautTest
     @EnableWireMock({
-            @ConfigureWireMock(name = "user-service", properties = "user-service.url"),
-            @ConfigureWireMock(name = "todo-service", properties = "todo-service.url"),
+            @ConfigureWireMock(name = "user-service", properties = "user-service.url", portProperty = "user-service.port"),
+            @ConfigureWireMock(name = "todo-service", properties = "todo-service.url", portProperty = "todo-service.port"),
             @ConfigureWireMock(name = "noproperty-service"),
     })
     @Nested
@@ -29,13 +29,23 @@ public class WireMockMicronautExtensionTest {
         @Test
         @DisplayName("WireMock should be available when injected as a method param")
         void createsWiremockWithClassLevelConfigureWiremock(@InjectWireMock("user-service") final WireMockServer server) {
-            CommonAssertions.assertWireMockServerIsConfigured(server, environment, "user-service.url");
+            CommonAssertions.assertWireMockServerIsConfigured(
+                    server,
+                    environment,
+                    "user-service.url",
+                    "user-service.port"
+            );
         }
 
         @Test
         @DisplayName("WireMock should be available when injected as a class field")
         void createsWiremockWithFieldLevelConfigureWiremock() {
-            CommonAssertions.assertWireMockServerIsConfigured(todoWireMockServer, environment, "todo-service.url");
+            CommonAssertions.assertWireMockServerIsConfigured(
+                    todoWireMockServer,
+                    environment,
+                    "todo-service.url",
+                    "todo-service.port"
+            );
         }
 
         @Test

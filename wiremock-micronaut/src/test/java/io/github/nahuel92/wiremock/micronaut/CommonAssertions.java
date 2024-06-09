@@ -7,7 +7,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class CommonAssertions {
     public static void assertWireMockServerIsConfigured(final WireMockServer wireMockServer,
-                                                        final Environment environment, final String property) {
+                                                        final Environment environment, final String property,
+                                                        final String portProperty) {
         assertThat(wireMockServer)
                 .as("Creates WireMock instance")
                 .isNotNull();
@@ -20,5 +21,8 @@ public class CommonAssertions {
         assertThat(environment.getProperty(property, String.class))
                 .as("Sets Micronaut property")
                 .contains(wireMockServer.baseUrl());
+        assertThat(environment.getProperty(portProperty, Integer.class))
+                .as("Sets Micronaut port property")
+                .contains(wireMockServer.port());
     }
 }

@@ -34,6 +34,13 @@ public @interface ConfigureWireMock {
     String[] properties() default {};
 
     /**
+     * The name of Micronaut property to inject the {@link WireMockServer#port()}
+     *
+     * @return the name of Micronaut property to inject the {@link WireMockServer#port()}
+     */
+    String portProperty() default "wiremock.server.port";
+
+    /**
      * The location of WireMock stub files. By default, stubs are resolved from classpath location
      * <code>wiremock-server-name/mappings/</code>.
      * <p>
