@@ -3,6 +3,7 @@ package io.github.nahuel92.wiremock.micronaut;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -11,6 +12,7 @@ import java.lang.annotation.Target;
 /**
  * Enables creating WireMock servers through {@link WireMockConfigurationCustomizer}.
  */
+@Documented
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @ExtendWith(WireMockMicronautExtension.class)
