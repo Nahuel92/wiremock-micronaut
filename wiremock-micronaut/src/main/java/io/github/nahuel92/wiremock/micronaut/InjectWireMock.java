@@ -9,9 +9,9 @@ import java.lang.annotation.Target;
 /**
  * Injects WireMock instance previously configured on the class or field level with {@link ConfigureWireMock}.
  */
+@Documented
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
-@Documented
 public @interface InjectWireMock {
     /**
      * The name of WireMock instance to inject.

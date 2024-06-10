@@ -23,8 +23,11 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
  * JUnit 5 extension that sets {@link WireMockServer} instances previously registered with {@link ConfigureWireMock}
  * on test class fields.
  */
-public class WireMockMicronautExtension extends MicronautJunit5Extension {
+class WireMockMicronautExtension extends MicronautJunit5Extension {
     private static final Logger LOGGER = LoggerFactory.getLogger(WireMockMicronautExtension.class);
+
+    WireMockMicronautExtension() {
+    }
 
     @Override
     public void beforeAll(final ExtensionContext extensionContext) throws Exception {

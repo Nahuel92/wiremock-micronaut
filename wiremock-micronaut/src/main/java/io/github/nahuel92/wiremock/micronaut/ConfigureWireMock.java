@@ -4,12 +4,14 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.Extension;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
  * Configures WireMock instance.
  */
+@Documented
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ConfigureWireMock {
     /**
