@@ -24,6 +24,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-http-client</artifactId>
             <scope>compile</scope>
@@ -38,6 +43,11 @@
             <artifactId>micronaut-inject</artifactId>
             <version>4.5.1</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.micronaut.grpc</groupId>
+            <artifactId>micronaut-grpc-client-runtime</artifactId>
+            <version>4.4.1</version>
         </dependency>
         <dependency>
             <groupId>io.micronaut.serde</groupId>
@@ -93,6 +103,26 @@
                 <configuration>
                     <skip>true</skip>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.github.os72</groupId>
+                <artifactId>protoc-jar-maven-plugin</artifactId>
+                <version>3.11.4</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <protocArtifact>com.google.protobuf:protoc:3.25.1</protocArtifact>
+                            <inputDirectories>
+                                <include>${basedir}/src/main/proto</include>
+                            </inputDirectories>
+                            <outputDirectory>${project.build.directory}/generated-sources/proto</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
