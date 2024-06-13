@@ -3,8 +3,6 @@ package app;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import io.github.nahuel92.wiremock.micronaut.EnableWireMock;
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.AfterEach;
@@ -28,20 +26,17 @@ public class GrpcTest {
             .withRootDirectory("src/test/resources/wiremock")
             .extensions(new GrpcExtensionFactory())
     );
+
     @Inject
     private GreeterGrpc.GreeterBlockingStub greeter;
-    private ManagedChannel channel;
 
     @BeforeEach
     void setUp() {
         wm.start();
-        channel = ManagedChannelBuilder.forAddress("localhost", wm.port()).usePlaintext().build();
-        greeter = GreeterGrpc.newBlockingStub(channel);
     }
 
     @AfterEach
     void tearDown() {
-        channel.shutdown();
         wm.stop();
     }
 
