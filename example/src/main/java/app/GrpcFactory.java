@@ -8,7 +8,7 @@ import jakarta.inject.Singleton;
 @Factory
 public class GrpcFactory {
     @Singleton
-    GreeterGrpc.GreeterBlockingStub greeter(@GrpcChannel("http://localhost:65000") final ManagedChannel channel) {
+    GreeterGrpc.GreeterBlockingStub greeter(@GrpcChannel("greeter") final ManagedChannel channel) {
         return GreeterGrpc.newBlockingStub(channel);
     }
 }

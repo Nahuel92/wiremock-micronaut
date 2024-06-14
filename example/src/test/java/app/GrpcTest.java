@@ -1,53 +1,40 @@
 package app;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.client.WireMock;
+import io.github.nahuel92.wiremock.micronaut.ConfigureWireMock;
 import io.github.nahuel92.wiremock.micronaut.EnableWireMock;
+import io.github.nahuel92.wiremock.micronaut.InjectWireMock;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.wiremock.grpc.GrpcExtensionFactory;
 import org.wiremock.grpc.dsl.WireMockGrpcService;
 
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.wiremock.grpc.dsl.WireMockGrpc.equalToMessage;
 import static org.wiremock.grpc.dsl.WireMockGrpc.message;
 import static org.wiremock.grpc.dsl.WireMockGrpc.method;
 
 @MicronautTest
-@EnableWireMock
+@EnableWireMock(
+        @ConfigureWireMock(
+                name = GreeterGrpc.SERVICE_NAME,
+                portProperty = "my.port",
+                properties = "my.server",
+                extensionFactories = GrpcExtensionFactory.class,
+                stubLocation = "src/test/resources/wiremock"
+        )
+)
 public class GrpcTest {
-    private final WireMockServer wm = new WireMockServer(wireMockConfig()
-            .port(65000)
-            //.dynamicPort()
-            .withRootDirectory("src/test/resources/wiremock")
-            .extensions(new GrpcExtensionFactory())
-    );
-
     @Inject
     private GreeterGrpc.GreeterBlockingStub greeter;
 
-    @BeforeEach
-    void setUp() {
-        wm.start();
-    }
-
-    @AfterEach
-    void tearDown() {
-        wm.stop();
-    }
+    @InjectWireMock(GreeterGrpc.SERVICE_NAME)
+    private WireMockGrpcService wireMockServer;
 
     @Test
-    void name() {
+    void successOnTestingWithGrpc() {
         // given
-        final var mockGreetingService = new WireMockGrpcService(
-                new WireMock(wm.port()),
-                GreeterGrpc.SERVICE_NAME
-        );
-        mockGreetingService.stubFor(method("sayHello")
+        wireMockServer.stubFor(method("sayHello")
                 .withRequestMessage(equalToMessage(HelloRequest.newBuilder().setName("Tom")))
                 .willReturn(message(HelloReply.newBuilder().setMessage("Hello Tom!")))
         );
