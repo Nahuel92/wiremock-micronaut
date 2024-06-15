@@ -18,7 +18,7 @@ import org.wiremock.grpc.dsl.WireMockGrpcService;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,19 +35,19 @@ class WireMockMicronautExtension extends MicronautJunit5Extension {
     WireMockMicronautExtension() {
     }
 
-    private static void registerExtensionFactories(ConfigureWireMock options, WireMockConfiguration serverOptions) {
-        // TODO: improve this
-        final var extensionFactories = Arrays.stream(options.extensionFactories())
-                .map(e -> {
-                    try {
-                        return e.getDeclaredConstructor().newInstance();
-                    } catch (final InvocationTargetException | InstantiationException | NoSuchMethodException |
-                                   IllegalAccessException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                })
-                .toArray(ExtensionFactory[]::new);
-        serverOptions.extensions(extensionFactories);
+    private static void registerExtensionFactories(final ConfigureWireMock options, final WireMockConfiguration serverOptions) {
+        final var extensionFactories = new ArrayList<ExtensionFactory>();
+        for (final var extensionFactory : options.extensionFactories()) {
+            try {
+                extensionFactories.add(extensionFactory.getDeclaredConstructor().newInstance());
+            } catch (final InvocationTargetException | InstantiationException | NoSuchMethodException |
+                           IllegalAccessException ex) {
+                throw new IllegalStateException(
+                        "Couldn't create instance of Extension Factory: '" + extensionFactory.getName() + "'", ex
+                );
+            }
+            serverOptions.extensions(extensionFactories.toArray(ExtensionFactory[]::new));
+        }
     }
 
     @Override
