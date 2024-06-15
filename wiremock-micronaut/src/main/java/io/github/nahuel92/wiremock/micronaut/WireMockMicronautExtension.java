@@ -16,8 +16,9 @@ import org.slf4j.LoggerFactory;
 import org.wiremock.grpc.GrpcExtensionFactory;
 import org.wiremock.grpc.dsl.WireMockGrpcService;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,21 +36,6 @@ class WireMockMicronautExtension extends MicronautJunit5Extension {
     WireMockMicronautExtension() {
     }
 
-    private static void registerExtensionFactories(final ConfigureWireMock options, final WireMockConfiguration serverOptions) {
-        final var extensionFactories = new ArrayList<ExtensionFactory>();
-        for (final var extensionFactory : options.extensionFactories()) {
-            try {
-                extensionFactories.add(extensionFactory.getDeclaredConstructor().newInstance());
-            } catch (final InvocationTargetException | InstantiationException | NoSuchMethodException |
-                           IllegalAccessException ex) {
-                throw new IllegalStateException(
-                        "Couldn't create instance of Extension Factory: '" + extensionFactory.getName() + "'", ex
-                );
-            }
-            serverOptions.extensions(extensionFactories.toArray(ExtensionFactory[]::new));
-        }
-    }
-
     @Override
     public Object resolveParameter(final ParameterContext parameterContext, final ExtensionContext extensionContext) {
         return parameterContext.findAnnotation(InjectWireMock.class)
@@ -58,41 +44,22 @@ class WireMockMicronautExtension extends MicronautJunit5Extension {
                 .orElseThrow();
     }
 
-    private static Object getServerInstance(final Field annotatedField, final Map<String, Object> wireMockServerMap) {
-        final var serverName = annotatedField.getAnnotation(InjectWireMock.class).value();
-        final Object wiremock;
-        if (annotatedField.getType().equals(WireMockGrpcService.class)) {
-            wiremock = wireMockServerMap.get("grpc/" + serverName);
-        } else if (annotatedField.getType().equals(WireMockServer.class)) {
-            wiremock = wireMockServerMap.get(serverName);
-        } else {
-            throw new IllegalStateException("@InjectWireMock must be used on [WireMockServer|WireMockGrpcService] type fields!");
-        }
-        if (wiremock == null) {
-            throw new IllegalStateException(
-                    "WireMock server/gRPC service with name '" + serverName + "' not registered. " +
-                            "Perhaps you forgot to configure it first with @ConfigureWireMock?"
-            );
-        }
-        return wiremock;
-    }
-
-    @Override
-    public void beforeEach(final ExtensionContext extensionContext) throws Exception {
-        super.beforeEach(extensionContext);
-        for (final var wiremockServer : getWireMockServerMap(extensionContext).values()) {
-            if (wiremockServer instanceof WireMockServer w) {
-                w.resetAll();
-            }
-        }
-        injectWireMockInstances(extensionContext);
-    }
-
     @Override
     public boolean supportsParameter(final ParameterContext parameterContext, final ExtensionContext extensionContext) {
         return (WireMockServer.class.equals(parameterContext.getParameter().getType()) ||
                 WireMockGrpcService.class.equals(parameterContext.getParameter().getType())) &&
                 parameterContext.isAnnotated(InjectWireMock.class);
+    }
+
+    @Override
+    public void beforeEach(final ExtensionContext extensionContext) throws Exception {
+        super.beforeEach(extensionContext);
+        for (final var wireMockServer : getWireMockServerMap(extensionContext).values()) {
+            if (wireMockServer instanceof WireMockServer w) {
+                w.resetAll();
+            }
+        }
+        injectWireMockInstances(extensionContext);
     }
 
     @Override
@@ -161,6 +128,22 @@ class WireMockMicronautExtension extends MicronautJunit5Extension {
                 throw e;
             }
         }
+    }
+
+    private void registerExtensionFactories(final ConfigureWireMock options, final WireMockConfiguration serverOptions) {
+        final var extensionFactories = new ArrayList<ExtensionFactory>();
+        final var lookup = MethodHandles.lookup();
+        for (final var extensionFactory : options.extensionFactories()) {
+            try {
+                final var constructor = lookup.findConstructor(extensionFactory, MethodType.methodType(void.class));
+                extensionFactories.add((ExtensionFactory) constructor.invoke());
+            } catch (final Throwable ex) {
+                throw new IllegalStateException(
+                        "Couldn't create instance of Extension Factory: '" + extensionFactory.getName() + "'", ex
+                );
+            }
+        }
+        serverOptions.extensions(extensionFactories.toArray(ExtensionFactory[]::new));
     }
 
     private WireMockServer getStartedServer(final ConfigureWireMock options) {
@@ -233,5 +216,24 @@ class WireMockMicronautExtension extends MicronautJunit5Extension {
                 annotatedField.set(testInstance, getServerInstance(annotatedField, wireMockServerMap));
             }
         }
+    }
+
+    private Object getServerInstance(final Field annotatedField, final Map<String, Object> wireMockServerMap) {
+        final var serverName = annotatedField.getAnnotation(InjectWireMock.class).value();
+        final Object wiremock;
+        if (annotatedField.getType().equals(WireMockGrpcService.class)) {
+            wiremock = wireMockServerMap.get("grpc/" + serverName);
+        } else if (annotatedField.getType().equals(WireMockServer.class)) {
+            wiremock = wireMockServerMap.get(serverName);
+        } else {
+            throw new IllegalStateException("@InjectWireMock must be used on [WireMockServer|WireMockGrpcService] type fields!");
+        }
+        if (wiremock == null) {
+            throw new IllegalStateException(
+                    "WireMock server/gRPC service with name '" + serverName + "' not registered. " +
+                            "Perhaps you forgot to configure it first with @ConfigureWireMock?"
+            );
+        }
+        return wiremock;
     }
 }
