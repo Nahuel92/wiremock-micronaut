@@ -10,7 +10,6 @@ import io.micronaut.test.extensions.junit5.MicronautJunit5Extension;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.platform.commons.support.AnnotationSupport;
-import org.junit.platform.commons.util.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wiremock.grpc.GrpcExtensionFactory;
@@ -118,14 +117,16 @@ class WireMockMicronautExtension extends MicronautJunit5Extension {
     }
 
     private void applyCustomizers(final ConfigureWireMock options, final WireMockConfiguration serverOptions) {
+        final var methodHandle = MethodHandles.lookup();
         for (final var customizer : options.configurationCustomizers()) {
             try {
-                ReflectionUtils.newInstance(customizer).customize(serverOptions, options);
-            } catch (final RuntimeException e) {
+                final var constructor = methodHandle.findConstructor(customizer, MethodType.methodType(void.class));
+                ((WireMockConfigurationCustomizer) constructor.invoke()).customize(serverOptions, options);
+            } catch (final Throwable e) {
                 if (e.getCause() instanceof NoSuchMethodException) {
                     LOGGER.error("Customizer '{}' must have a no-arg constructor", customizer, e);
                 }
-                throw e;
+                throw new IllegalStateException(e);
             }
         }
     }
