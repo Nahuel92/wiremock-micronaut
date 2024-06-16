@@ -23,9 +23,9 @@ public @interface ConfigureWireMock {
     int port() default 0;
 
     /**
-     * The name of WireMock server.
+     * The name of WireMock server / Grpc service.
      *
-     * @return the name of WireMock server.
+     * @return the name of WireMock server / Grpc service.
      */
     String name();
 

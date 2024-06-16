@@ -5,6 +5,7 @@
 - Fully declarative `WireMock` setup.
 - Support for multiple `WireMockServer` instances - one per HTTP client as recommended in the WireMock documentation
   automatically sets Micronaut environment properties.
+- Support for gRCP.
 - Doesn't pollute the Micronaut application context with extra beans.
 
 ## How to install
@@ -12,10 +13,11 @@
 In your `pom.xml`, simply add the `wiremock-micronaut` dependency:
 
 ```xml
+
 <dependency>
     <groupId>io.github.nahuel92</groupId>
     <artifactId>wiremock-micronaut</artifactId>
-    <version>1.3.0</version>
+  <version>1.4.0</version>
     <scope>test</scope>
 </dependency>
 ```
@@ -26,6 +28,7 @@ Use `@EnableWireMock` with `@ConfigureWireMock` with tests annotated that use `M
 like `@MicronautTest`:
 
 ```java
+
 @MicronautTest
 @EnableWireMock(
         @ConfigureWireMock(
@@ -69,6 +72,7 @@ exclusive `WireMockServer` instance. You get maximum isolation between your serv
 complex test setup.
 
 ```java
+
 @MicronautTest
 @EnableWireMock({
         @ConfigureWireMock(
@@ -107,6 +111,7 @@ The following example shows how to use the *Multiple Property Injection*, which 
 `WireMockServer` instance. You give up on isolation between your services' mocks, but you get a less complex test setup.
 
 ```java
+
 @MicronautTest
 @EnableWireMock(
         @ConfigureWireMock(
@@ -134,6 +139,7 @@ class YourTest {
 Usually, you'll configure your tests as follows:
 
 ```java
+
 @MicronautTest
 @EnableWireMock({
         @ConfigureWireMock(
@@ -196,6 +202,7 @@ In the previous situation, when the test only requires exactly one WireMock serv
 In this case, the `WireMock` client class can be used to configure your stubs:
 
 ```java
+
 @MicronautTest
 @EnableWireMock(
         @ConfigureWireMock(
@@ -275,6 +282,122 @@ class YourTest {
   }
 }
 ```
+
+### gRPC
+
+gRPC testing is very similar to previous examples, but:
+
+- It requires extra configuration in your project (not showed here) to compile your `.proto` files.
+- It requires a service descriptor file for each `.proto` service you want to test.
+
+In the following example, WireMock is instructed to:
+
+- Internal WireMock server and gRPC service are set with the same name (`GreeterGrpc.SERVICE_NAME`, which comes from the
+  generated code from the `.proto` file).
+- Load the Grpc extension that enables gRPC support.
+- Search for service descriptor files under `src/test/resources/wiremock`.
+
+```java
+
+@MicronautTest
+@EnableWireMock({
+        @ConfigureWireMock(
+                name = GreeterGrpc.SERVICE_NAME,
+                portProperty = "my.port",
+                properties = "my.server",
+                extensionFactories = GrpcExtensionFactory.class,
+                stubLocation = "src/test/resources/wiremock"
+        )
+})
+public class GrpcTest {
+  @Inject
+  private GreeterGrpc.GreeterBlockingStub greeter;
+
+  @InjectWireMock(GreeterGrpc.SERVICE_NAME)
+  private WireMockGrpcService greeterGrpcService;
+
+  @Test
+  @DisplayName("WireMock should allow configuring single gRPC service per test")
+  void successOnTestingWithSingleGrpcService() {
+    // given
+    createGreeterStub();
+
+    // when
+    final var message = greeter.sayHello(HelloRequest.newBuilder().setName("Tom").build());
+
+    // then
+    assertThat(message.getMessage()).isEqualTo("Hello Tom!");
+  }
+}
+```
+
+It also supports multiple gRPC and HTTP stubs at the same time, although you may want to stick to simpler tests:
+
+```java
+
+@MicronautTest
+@EnableWireMock({
+        @ConfigureWireMock(
+                name = GreeterGrpc.SERVICE_NAME,
+                portProperty = "my.port",
+                properties = "my.server",
+                extensionFactories = GrpcExtensionFactory.class,
+                stubLocation = "src/test/resources/wiremock"
+        ),
+        @ConfigureWireMock(
+                name = Greeter2Grpc.SERVICE_NAME,
+                portProperty = "my.port2",
+                properties = "my.server2",
+                extensionFactories = GrpcExtensionFactory.class,
+                stubLocation = "src/test/resources/wiremock2"
+        ),
+        @ConfigureWireMock(name = "user-client", properties = "user-client.url")
+})
+class GrpcAndHttpTest {
+  @Inject
+  private GreeterGrpc.GreeterBlockingStub greeter;
+
+  @Inject
+  private Greeter2Grpc.Greeter2BlockingStub greeter2;
+
+  @InjectWireMock(GreeterGrpc.SERVICE_NAME)
+  private WireMockGrpcService greeterGrpcService;
+
+  @InjectWireMock(Greeter2Grpc.SERVICE_NAME)
+  private WireMockGrpcService greeter2GrpcService;
+
+  @Inject
+  private UserClient userClient;
+
+  @Test
+  @DisplayName("WireMock should allow configuring multiple gRPC and HTTP services per test")
+  void successOnTestingWithGrpc() {
+    // given
+    greeterGrpcService.stubFor(method("sayHello")
+            .withRequestMessage(equalToMessage(HelloRequest.newBuilder().setName("Tom")))
+            .willReturn(message(HelloReply.newBuilder().setMessage("Hello Tom!")))
+    );
+    greeter2GrpcService.stubFor(method("sayHello2")
+            .withRequestMessage(equalToMessage(HelloRequest2.newBuilder().setName("Nahuel")))
+            .willReturn(message(HelloReply2.newBuilder().setMessage("Hello Nahuel!")))
+    );
+    final var result = userClient.findOne(1L);
+
+    // when
+    final var message = greeter.sayHello(HelloRequest.newBuilder().setName("Tom").build());
+    final var message2 = greeter2.sayHello2(HelloRequest2.newBuilder().setName("Nahuel").build());
+
+    // then
+    try (final var softly = new AutoCloseableSoftAssertions()) {
+      softly.assertThat(message.getMessage()).isEqualTo("Hello Tom!");
+      softly.assertThat(message2.getMessage()).isEqualTo("Hello Nahuel!");
+      softly.assertThat(result.name()).isEqualTo("Jenna");
+    }
+  }
+}
+```
+
+More test examples can be found in the `example` module.
 
 ## Registering WireMock extensions
 
