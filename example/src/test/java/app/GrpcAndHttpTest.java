@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.wiremock.grpc.GrpcExtensionFactory;
 import org.wiremock.grpc.dsl.WireMockGrpcService;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.wiremock.grpc.dsl.WireMockGrpc.equalToMessage;
 import static org.wiremock.grpc.dsl.WireMockGrpc.message;
 import static org.wiremock.grpc.dsl.WireMockGrpc.method;
@@ -34,9 +33,10 @@ import static org.wiremock.grpc.dsl.WireMockGrpc.method;
                 properties = "my.server2",
                 extensionFactories = GrpcExtensionFactory.class,
                 stubLocation = "src/test/resources/wiremock2"
-        )
+        ),
+        @ConfigureWireMock(name = "user-client", properties = "user-client.url")
 })
-public class GrpcTest {
+class GrpcAndHttpTest {
     @Inject
     private GreeterGrpc.GreeterBlockingStub greeter;
 
@@ -49,25 +49,22 @@ public class GrpcTest {
     @InjectWireMock(Greeter2Grpc.SERVICE_NAME)
     private WireMockGrpcService greeter2GrpcService;
 
-    @Test
-    @DisplayName("WireMock should allow configuring single gRPC service per test")
-    void successOnTestingWithSingleGrpcService() {
-        // given
-        createGreeterStub();
-
-        // when
-        final var message = greeter.sayHello(HelloRequest.newBuilder().setName("Tom").build());
-
-        // then
-        assertThat(message.getMessage()).isEqualTo("Hello Tom!");
-    }
+    @Inject
+    private UserClient userClient;
 
     @Test
     @DisplayName("WireMock should allow configuring multiple gRPC and HTTP services per test")
-    void successOnTestingWithMultipleGrpcServices() {
+    void successOnTestingWithGrpc() {
         // given
-        createGreeterStub();
-        createGreeter2Stub();
+        greeterGrpcService.stubFor(method("sayHello")
+                .withRequestMessage(equalToMessage(HelloRequest.newBuilder().setName("Tom")))
+                .willReturn(message(HelloReply.newBuilder().setMessage("Hello Tom!")))
+        );
+        greeter2GrpcService.stubFor(method("sayHello2")
+                .withRequestMessage(equalToMessage(HelloRequest2.newBuilder().setName("Nahuel")))
+                .willReturn(message(HelloReply2.newBuilder().setMessage("Hello Nahuel!")))
+        );
+        final var result = userClient.findOne(1L);
 
         // when
         final var message = greeter.sayHello(HelloRequest.newBuilder().setName("Tom").build());
@@ -77,20 +74,7 @@ public class GrpcTest {
         try (final var softly = new AutoCloseableSoftAssertions()) {
             softly.assertThat(message.getMessage()).isEqualTo("Hello Tom!");
             softly.assertThat(message2.getMessage()).isEqualTo("Hello Nahuel!");
+            softly.assertAlso(CommonAssertions.assertThatUserHasIdAndName(result, 1L, "Jenna"));
         }
-    }
-
-    private void createGreeterStub() {
-        greeterGrpcService.stubFor(method("sayHello")
-                .withRequestMessage(equalToMessage(HelloRequest.newBuilder().setName("Tom")))
-                .willReturn(message(HelloReply.newBuilder().setMessage("Hello Tom!")))
-        );
-    }
-
-    private void createGreeter2Stub() {
-        greeter2GrpcService.stubFor(method("sayHello2")
-                .withRequestMessage(equalToMessage(HelloRequest2.newBuilder().setName("Nahuel")))
-                .willReturn(message(HelloReply2.newBuilder().setMessage("Hello Nahuel!")))
-        );
     }
 }

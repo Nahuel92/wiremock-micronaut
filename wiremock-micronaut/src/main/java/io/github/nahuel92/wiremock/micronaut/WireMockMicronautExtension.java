@@ -2,6 +2,7 @@ package io.github.nahuel92.wiremock.micronaut;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.google.common.base.Preconditions;
 import io.micronaut.context.env.MapPropertySource;
 import io.micronaut.test.extensions.junit5.MicronautJunit5Extension;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -12,10 +13,9 @@ import org.slf4j.LoggerFactory;
 import org.wiremock.grpc.GrpcExtensionFactory;
 import org.wiremock.grpc.dsl.WireMockGrpcService;
 
-import java.lang.reflect.Field;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -23,8 +23,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * on test class fields.
  */
 class WireMockMicronautExtension extends MicronautJunit5Extension {
+    private static final String INVALID_USAGE = "@InjectWireMock only works with [WireMockServer|WireMockGrpcService] types!";
+    private static final String NULL_WIREMOCK = "WireMock server/gRPC service with name '%s' not registered. " +
+            "Perhaps you forgot to configure it first with @ConfigureWireMock?";
     private static final Logger LOGGER = LoggerFactory.getLogger(WireMockMicronautExtension.class);
-    private static final List<Class<?>> SUPPORTED_TYPES = List.of(WireMockServer.class, WireMockGrpcService.class);
+    private static final Set<Class<?>> SUPPORTED_TYPES = Set.of(WireMockServer.class, WireMockGrpcService.class);
     private final InternalStore internalStore = new InternalStore();
 
     WireMockMicronautExtension() {
@@ -74,19 +77,19 @@ class WireMockMicronautExtension extends MicronautJunit5Extension {
     }
 
     private WireMockServer getOrCreateServer(final ExtensionContext extensionContext, final ConfigureWireMock options) {
-        final var wireMockServer = internalStore.getServerMap(extensionContext).get(options.name());
-        if (wireMockServer != null && wireMockServer.isRunning()) {
+        final var server = internalStore.getServerMap(extensionContext).get(options.name());
+        if (server != null && server.isRunning()) {
             LOGGER.info("WireMockServer with name '{}' is already configured", options.name());
-            return wireMockServer;
+            return server;
         }
         final var newServer = getStartedServer(options);
         internalStore.put(extensionContext, options.name(), newServer);
+        applicationContext.registerSingleton(ShutdownServerEvent.class, new ShutdownServerEvent(newServer, options));
+        addPropertiesToMicronautContext(newServer, options);
         if (isGrpcTest(options)) {
             final var newGrpcService = new WireMockGrpcService(new WireMock(newServer.port()), options.name());
             internalStore.put(extensionContext, options.name(), newGrpcService);
         }
-        applicationContext.registerSingleton(ShutdownServerEvent.class, new ShutdownServerEvent(newServer, options));
-        addPropertiesToMicronautContext(newServer, options);
         return newServer;
     }
 
@@ -135,35 +138,23 @@ class WireMockMicronautExtension extends MicronautJunit5Extension {
         for (final var testInstance : extensionContext.getRequiredTestInstances().getAllInstances()) {
             final var annotatedFields = AnnotationSupport.findAnnotatedFields(testInstance.getClass(), InjectWireMock.class);
             for (final var annotatedField : annotatedFields) {
+                if (!SUPPORTED_TYPES.contains(annotatedField.getType())) {
+                    throw new IllegalStateException(INVALID_USAGE);
+                }
                 annotatedField.setAccessible(true);
-                annotatedField.set(testInstance, getInstance(annotatedField, serverMap, grpcServicesMap));
+                final var serverName = annotatedField.getAnnotation(InjectWireMock.class).value();
+                if (WireMockGrpcService.class.isAssignableFrom(annotatedField.getType())) {
+                    annotatedField.set(testInstance, requireNotNull(grpcServicesMap.get(serverName), serverName));
+                    continue;
+                }
+                annotatedField.set(testInstance, requireNotNull(serverMap.get(serverName), serverName));
             }
         }
     }
 
-    private Object getInstance(final Field annotatedField, final Map<String, WireMockServer> mockServerMap,
-                               final Map<String, WireMockGrpcService> grpcServiceMap) {
-        final var serverName = annotatedField.getAnnotation(InjectWireMock.class).value();
-        final var wireMock = getInstance(mockServerMap, grpcServiceMap, serverName, annotatedField.getType());
-        if (wireMock == null) {
-            throw new IllegalStateException(
-                    "WireMock server/gRPC service with name '" + serverName + "' not registered. " +
-                            "Perhaps you forgot to configure it first with @ConfigureWireMock?"
-            );
-        }
+    private Object requireNotNull(final Object wireMock, final String serverName) {
+        Preconditions.checkState(wireMock != null, NULL_WIREMOCK, serverName);
         return wireMock;
-    }
-
-    private Object getInstance(final Map<String, WireMockServer> mockServerMap,
-                               final Map<String, WireMockGrpcService> grpcServiceMap,
-                               final String serverName, final Class<?> type) {
-        if (WireMockGrpcService.class.isAssignableFrom(type)) {
-            return grpcServiceMap.get(serverName);
-        }
-        if (WireMockServer.class.isAssignableFrom(type)) {
-            return mockServerMap.get(serverName);
-        }
-        throw new IllegalStateException("@InjectWireMock must be used on [WireMockServer|WireMockGrpcService] type fields!");
     }
 
     private class InternalStore {

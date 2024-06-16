@@ -5,18 +5,14 @@ option java_multiple_files = true;
 
 package app;
 
-// The greeting service definition.
 service Greeter {
-  // Sends a greeting
   rpc sayHello (HelloRequest) returns (HelloReply) {}
 }
 
-// The request message containing the user's name.
 message HelloRequest {
   string name = 1;
 }
 
-// The response message containing the greetings
 message HelloReply {
   string message = 1;
 }

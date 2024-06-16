@@ -8,7 +8,6 @@ import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.MediaType;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
-import org.assertj.core.api.AutoCloseableSoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -23,14 +22,6 @@ class UserClientTest {
 
     @InjectWireMock("user-client")
     private WireMockServer wiremock;
-
-    private static void assertThatUserHasIdAndName(final User result, long id, final String name) {
-        try (final var softly = new AutoCloseableSoftAssertions()) {
-            softly.assertThat(result).isNotNull();
-            softly.assertThat(result.id()).isEqualTo(id);
-            softly.assertThat(result.name()).isEqualTo(name);
-        }
-    }
 
     @Test
     @DisplayName("WireMock server should use Java stub when stubbing via the Java API")
@@ -49,7 +40,7 @@ class UserClientTest {
         final var result = userClient.findOne(2L);
 
         // then
-        assertThatUserHasIdAndName(result, 2L, "Amy");
+        CommonAssertions.assertThatUserHasIdAndName(result, 2L, "Amy").close();
     }
 
     @Test
@@ -59,6 +50,6 @@ class UserClientTest {
         final var result = userClient.findOne(1L);
 
         // then
-        assertThatUserHasIdAndName(result, 1L, "Jenna");
+        CommonAssertions.assertThatUserHasIdAndName(result, 1L, "Jenna").close();
     }
 }

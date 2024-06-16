@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option java_package = "mypackage";
+option java_multiple_files = true;
+
+package mypackage;
+
+service Greeter2 {
+  rpc sayHello2 (HelloRequest2) returns (HelloReply2) {}
+}
+
+message HelloRequest2 {
+  string name = 1;
+}
+
+message HelloReply2 {
+  string message = 1;
+}
