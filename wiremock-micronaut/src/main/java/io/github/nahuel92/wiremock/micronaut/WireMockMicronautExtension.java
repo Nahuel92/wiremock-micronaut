@@ -14,6 +14,7 @@ import org.wiremock.grpc.dsl.WireMockGrpcService;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 class WireMockMicronautExtension extends MicronautJunit5Extension {
     private static final Logger LOGGER = LoggerFactory.getLogger(WireMockMicronautExtension.class);
+    private static final List<Class<?>> SUPPORTED_TYPES = List.of(WireMockServer.class, WireMockGrpcService.class);
 
     WireMockMicronautExtension() {
     }
@@ -38,8 +40,7 @@ class WireMockMicronautExtension extends MicronautJunit5Extension {
 
     @Override
     public boolean supportsParameter(final ParameterContext parameterContext, final ExtensionContext extensionContext) {
-        return (WireMockServer.class.equals(parameterContext.getParameter().getType()) ||
-                WireMockGrpcService.class.equals(parameterContext.getParameter().getType())) &&
+        return SUPPORTED_TYPES.contains(parameterContext.getParameter().getType()) &&
                 parameterContext.isAnnotated(InjectWireMock.class);
     }
 
@@ -53,49 +54,55 @@ class WireMockMicronautExtension extends MicronautJunit5Extension {
     public void beforeEach(final ExtensionContext extensionContext) throws Exception {
         super.beforeEach(extensionContext);
         for (final var wireMockServer : getWireMockServerMap(extensionContext).values()) {
-            if (wireMockServer instanceof WireMockServer w) {
-                w.resetAll();
-            }
+            wireMockServer.resetAll();
         }
         injectWireMockInstances(extensionContext);
     }
 
     private void configureWireMockServers(final ExtensionContext extensionContext) {
-        final var enableWireMocks = extensionContext.getRequiredTestClass().getAnnotationsByType(EnableWireMock.class);
-        for (final var enableWireMock : enableWireMocks) {
-            final var configureWireMocks = enableWireMock.value();
-            for (final var options : configureWireMocks) {
-                final var wireMockServer = getOrCreateServer(extensionContext, options);
-                if (configureWireMocks.length == 1) {
-                    WireMock.configureFor(wireMockServer.port());
-                }
+        for (final var enableWireMock : extensionContext.getRequiredTestClass().getAnnotationsByType(EnableWireMock.class)) {
+            if (enableWireMock.value().length == 1) {
+                final var wireMockServer = getOrCreateServer(extensionContext, enableWireMock.value()[0]);
+                WireMock.configureFor(wireMockServer.port());
+                continue;
+            }
+            for (final var options : enableWireMock.value()) {
+                getOrCreateServer(extensionContext, options);
             }
         }
     }
 
     private WireMockServer getOrCreateServer(final ExtensionContext extensionContext, final ConfigureWireMock options) {
         final var wireMockServer = getWireMockServerMap(extensionContext).get(options.name());
-        if (wireMockServer instanceof WireMockServer w && w.isRunning()) {
+        if (wireMockServer != null && wireMockServer.isRunning()) {
             LOGGER.info("WireMockServer with name '{}' is already configured", options.name());
-            return w;
+            return wireMockServer;
         }
         final var newServer = getStartedServer(options);
         if (isGrpcTest(options)) {
             final var newGrpcService = new WireMockGrpcService(new WireMock(newServer.port()), options.name());
-            saveToStore(extensionContext, "grpc/" + options.name(), newGrpcService);
+            getWireMockGrpcServicesMap(extensionContext).put(options.name(), newGrpcService);
         }
-        saveToStore(extensionContext, options.name(), newServer);
-        registerShutdownHookForServer(newServer, options);
+        getWireMockServerMap(extensionContext).put(options.name(), newServer);
+        applicationContext.registerSingleton(ShutdownEventForServer.class, new ShutdownEventForServer(newServer, options));
         injectPropertyIntoMicronautEnvironment(newServer, options);
         return newServer;
     }
 
+    private Map<String, WireMockServer> getWireMockServerMap(final ExtensionContext extensionContext) {
+        return getMap(extensionContext, "wiremock-server-");
+    }
+
+    private Map<String, WireMockGrpcService> getWireMockGrpcServicesMap(final ExtensionContext extensionContext) {
+        return getMap(extensionContext, "wiremock-grpc-service-");
+    }
+
     @SuppressWarnings("unchecked")  // "get" doesn't support generics usage
-    private Map<String, Object> getWireMockServerMap(final ExtensionContext extensionContext) {
+    private <K, V> Map<K, V> getMap(final ExtensionContext extensionContext, final K key) {
         return getStore(extensionContext)
                 .getOrComputeIfAbsent(
-                        applicationContext,
-                        (applicationContext) -> new ConcurrentHashMap<String, Object>(),
+                        key.toString() + applicationContext,
+                        (applicationContext) -> new ConcurrentHashMap<K, V>(),
                         Map.class
                 );
     }
@@ -110,67 +117,51 @@ class WireMockMicronautExtension extends MicronautJunit5Extension {
     }
 
     private WireMockServer getStartedServer(final ConfigureWireMock options) {
-        final var serverOptions = WireMockConfigurationHelper.getConfiguration(options);
-        LOGGER.info("Configuring WireMockServer with name '{}' on port: '{}'", options.name(), serverOptions.portNumber());
-        final var newServer = new WireMockServer(serverOptions);
+        LOGGER.info("Configuring WireMockServer with name '{}' on port: '{}'", options.name(), options.port());
+        final var newServer = new WireMockServer(WireMockConfigurationHelper.getConfiguration(options));
         newServer.start();
-        LOGGER.info("Started WireMockServer with name '{}': '{}'", options.name(), newServer.baseUrl());
+        LOGGER.info("Started WireMockServer with name '{}' with base URL: '{}'", options.name(), newServer.baseUrl());
         return newServer;
-    }
-
-    private void saveToStore(final ExtensionContext extensionContext, final String serverName, final Object server) {
-        getWireMockServerMap(extensionContext).put(serverName, server);
-    }
-
-    private void registerShutdownHookForServer(final WireMockServer server, final ConfigureWireMock options) {
-        applicationContext.registerSingleton(ShutdownEventForServer.class, new ShutdownEventForServer(server, options));
     }
 
     @SuppressWarnings("resource")  // "addPropertySource" returns an autocloseable which shouldn't be closed here.
     private void injectPropertyIntoMicronautEnvironment(final WireMockServer server, final ConfigureWireMock options) {
-        final var propertiesToAdd = new HashMap<String, Object>();
-        propertiesToAdd.put(options.portProperty(), server.port());
-        for (final var propertyName : options.properties()) {
-            if (StringUtils.isBlank(propertyName)) {
-                continue;
+        final var properties = new HashMap<String, Object>();
+        properties.put(options.portProperty(), server.port());
+        final var serverUrl = getServerUrl(server.baseUrl(), options);
+        for (final var name : options.properties()) {
+            if (StringUtils.isNotBlank(name)) {
+                properties.put(name, serverUrl);
             }
-            final var isGrpc = isGrpcTest(options);
-            if (isGrpc) {
-                final var serverUrl = server.baseUrl().substring(0, server.baseUrl().lastIndexOf(":"));
-                propertiesToAdd.put(propertyName, serverUrl);
-                continue;
-            }
-            propertiesToAdd.put(propertyName, server.baseUrl());
         }
-        LOGGER.debug("Adding properties '{}' to Micronaut application context", propertiesToAdd);
-        final var customSource = MapPropertySource.of("wiremockExtensionSource", propertiesToAdd);
+        LOGGER.debug("Adding properties '{}' to Micronaut application context", properties);
+        final var customSource = MapPropertySource.of("wireMockExtensionSource", properties);
         applicationContext.getEnvironment().addPropertySource(customSource);
+    }
+
+    private String getServerUrl(final String baseUrl, final ConfigureWireMock options) {
+        if (isGrpcTest(options)) {
+            return baseUrl.substring(0, baseUrl.lastIndexOf(":"));  // Port is not needed for gRPC.
+        }
+        return baseUrl;
     }
 
     private void injectWireMockInstances(final ExtensionContext extensionContext) throws IllegalAccessException {
         final var wireMockServerMap = getWireMockServerMap(extensionContext);
+        final var wireMockGrpcServiceMap = getWireMockGrpcServicesMap(extensionContext);
         for (final var testInstance : extensionContext.getRequiredTestInstances().getAllInstances()) {
             final var annotatedFields = AnnotationSupport.findAnnotatedFields(testInstance.getClass(), InjectWireMock.class);
             for (final var annotatedField : annotatedFields) {
                 annotatedField.setAccessible(true);
-                annotatedField.set(testInstance, getServerInstance(annotatedField, wireMockServerMap));
+                annotatedField.set(testInstance, getServerInstance(annotatedField, wireMockServerMap, wireMockGrpcServiceMap));
             }
         }
     }
 
-    private Object getServerInstance(final Field annotatedField, final Map<String, Object> wireMockServerMap) {
+    private Object getServerInstance(final Field annotatedField, final Map<String, WireMockServer> wireMockServerMap,
+                                     final Map<String, WireMockGrpcService> wireMockGrpcServiceMap) {
         final var serverName = annotatedField.getAnnotation(InjectWireMock.class).value();
-
-        final Object wireMock;
-        if (annotatedField.getType().isAssignableFrom(WireMockGrpcService.class)) {
-            wireMock = wireMockServerMap.get("grpc/" + serverName);
-        } else if (annotatedField.getType().isAssignableFrom(WireMockServer.class)) {
-            wireMock = wireMockServerMap.get(serverName);
-        } else {
-            throw new IllegalStateException(
-                    "@InjectWireMock must be used on [WireMockServer|WireMockGrpcService] type fields!"
-            );
-        }
+        final var wireMock = getWireMock(wireMockServerMap, wireMockGrpcServiceMap, serverName, annotatedField.getType());
         if (wireMock == null) {
             throw new IllegalStateException(
                     "WireMock server/gRPC service with name '" + serverName + "' not registered. " +
@@ -178,5 +169,17 @@ class WireMockMicronautExtension extends MicronautJunit5Extension {
             );
         }
         return wireMock;
+    }
+
+    private Object getWireMock(final Map<String, WireMockServer> wireMockServerMap,
+                               final Map<String, WireMockGrpcService> wireMockGrpcServiceMap,
+                               final String serverName, final Class<?> type) {
+        if (type.isAssignableFrom(WireMockGrpcService.class)) {
+            return wireMockGrpcServiceMap.get(serverName);
+        }
+        if (type.isAssignableFrom(WireMockServer.class)) {
+            return wireMockServerMap.get(serverName);
+        }
+        throw new IllegalStateException("@InjectWireMock must be used on [WireMockServer|WireMockGrpcService] type fields!");
     }
 }
