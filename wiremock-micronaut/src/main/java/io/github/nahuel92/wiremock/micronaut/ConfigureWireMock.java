@@ -3,6 +3,7 @@ package io.github.nahuel92.wiremock.micronaut;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.Extension;
+import com.github.tomakehurst.wiremock.extension.ExtensionFactory;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -22,9 +23,9 @@ public @interface ConfigureWireMock {
     int port() default 0;
 
     /**
-     * The name of WireMock server.
+     * The name of WireMock server / Grpc service.
      *
-     * @return the name of WireMock server.
+     * @return the name of WireMock server / Grpc service.
      */
     String name();
 
@@ -71,6 +72,13 @@ public @interface ConfigureWireMock {
      * @return the extensions
      */
     Class<? extends Extension>[] extensions() default {};
+
+    /**
+     * WireMock extension factories to register in {@link WireMockServer}.
+     *
+     * @return the extensions
+     */
+    Class<? extends ExtensionFactory>[] extensionFactories() default {};
 
     /**
      * Customizes {@link WireMockConfiguration} used by {@link WireMockServer} instance. Customizers are ordered by

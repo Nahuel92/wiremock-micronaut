@@ -9,7 +9,7 @@
     <parent>
         <groupId>io.github.nahuel92</groupId>
         <artifactId>wiremock-micronaut-parent</artifactId>
-        <version>1.3.0</version>
+        <version>1.4.0</version>
     </parent>
 
     <name>WireMock Micronaut Example</name>
@@ -18,11 +18,16 @@
 
     <properties>
         <jdk.version>21</jdk.version>
-        <micronaut.core.version>4.4.3</micronaut.core.version>
-        <wiremock.micronaut.version>1.2.0</wiremock.micronaut.version>
+        <micronaut.core.version>4.5.1</micronaut.core.version>
+        <wiremock.micronaut.version>1.4.0</wiremock.micronaut.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>runtime</scope>
+        </dependency>
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-http-client</artifactId>
@@ -40,9 +45,20 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>io.micronaut.grpc</groupId>
+            <artifactId>micronaut-grpc-client-runtime</artifactId>
+            <version>4.5.0</version>
+        </dependency>
+        <dependency>
             <groupId>io.micronaut.serde</groupId>
             <artifactId>micronaut-serde-jackson</artifactId>
             <scope>compile</scope>
+        </dependency>
+
+        <!-- Required to make Protobuff compiled classes to work -->
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
         </dependency>
 
         <!-- Test dependencies -->
@@ -60,6 +76,12 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.wiremock</groupId>
+            <artifactId>wiremock-grpc-extension</artifactId>
+            <version>0.6.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -93,6 +115,35 @@
                 <configuration>
                     <skip>true</skip>
                 </configuration>
+            </plugin>
+
+            <!-- Protobuff plugin -->
+            <plugin>
+                <groupId>io.github.ascopes</groupId>
+                <artifactId>protobuf-maven-plugin</artifactId>
+                <version>2.1.4</version>
+                <configuration>
+                    <protocVersion>3.25.3</protocVersion>
+                    <sourceDirectories>
+                        <sourceDirectory>src/main/protobuf</sourceDirectory>
+                    </sourceDirectories>
+
+                    <binaryMavenPlugins>
+                        <binaryMavenPlugin>
+                            <groupId>io.grpc</groupId>
+                            <artifactId>protoc-gen-grpc-java</artifactId>
+                            <version>1.64.0</version>
+                        </binaryMavenPlugin>
+                    </binaryMavenPlugins>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                            <goal>generate-test</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
