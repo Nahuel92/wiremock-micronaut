@@ -8,7 +8,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 
 /**
- * Utils class that uses Method Handles to create instances.
+ * Utility class that uses Method Handles to create instances.
  */
 public class MethodHandleUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(WireMockMicronautExtension.class);

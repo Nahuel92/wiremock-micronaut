@@ -9,10 +9,10 @@ import java.util.ArrayList;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 
 /**
- * Helper class to map a {@link ConfigureWireMock} into a {@link WireMockConfiguration}.
+ * Mapper to convert a {@link ConfigureWireMock} into a {@link WireMockConfiguration}.
  */
-class WireMockConfigurationHelper {
-    public static WireMockConfiguration getConfiguration(final ConfigureWireMock options) {
+class WireMockConfigurationMapper {
+    public static WireMockConfiguration from(final ConfigureWireMock options) {
         final var serverOptions = options()
                 .port(options.port())
                 .notifier(new Slf4jNotifier(true));

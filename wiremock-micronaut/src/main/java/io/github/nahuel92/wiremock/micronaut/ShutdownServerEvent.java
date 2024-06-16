@@ -10,9 +10,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Event to stop WireMock instances when the {@link ApplicationContext} is shut down.
  */
-record ShutdownEventForServer(WireMockServer wireMockServer, ConfigureWireMock options)
+record ShutdownServerEvent(WireMockServer wireMockServer, ConfigureWireMock options)
         implements ApplicationEventListener<ShutdownEvent> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ShutdownEventForServer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ShutdownServerEvent.class);
 
     @Override
     public void onApplicationEvent(final ShutdownEvent event) {
