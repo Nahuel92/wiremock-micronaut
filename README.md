@@ -17,7 +17,7 @@ In your `pom.xml`, simply add the `wiremock-micronaut` dependency:
 <dependency>
     <groupId>io.github.nahuel92</groupId>
     <artifactId>wiremock-micronaut</artifactId>
-  <version>1.4.0</version>
+  <version>1.5.0</version>
     <scope>test</scope>
 </dependency>
 ```
@@ -28,7 +28,6 @@ Use `@EnableWireMock` with `@ConfigureWireMock` with tests annotated that use `M
 like `@MicronautTest`:
 
 ```java
-
 @MicronautTest
 @EnableWireMock(
         @ConfigureWireMock(
