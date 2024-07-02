@@ -4,13 +4,13 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.nahuel92</groupId>
     <artifactId>wiremock-micronaut-parent</artifactId>
-    <version>1.5.0</version>
+    <version>1.6.0</version>
     <packaging>pom</packaging>
 
     <properties>
         <java.version>21</java.version>
-        <micronaut.version>4.5.0</micronaut.version>
-        <wiremock.version>3.7.0</wiremock.version>
+        <micronaut-parent.version>4.5.0</micronaut-parent.version>
+        <wiremock.version>3.8.0</wiremock.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -53,7 +53,7 @@
             <dependency>
                 <groupId>io.micronaut.platform</groupId>
                 <artifactId>micronaut-parent</artifactId>
-                <version>${micronaut.version}</version>
+                <version>${micronaut-parent.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
