@@ -4,12 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>wiremock-example</artifactId>
-    <version>1.5.0</version>
+    <version>1.6.0</version>
 
     <parent>
         <groupId>io.github.nahuel92</groupId>
         <artifactId>wiremock-micronaut-parent</artifactId>
-        <version>1.5.0</version>
+        <version>1.6.0</version>
     </parent>
 
     <name>WireMock Micronaut Example</name>
@@ -18,7 +18,7 @@
 
     <properties>
         <jdk.version>21</jdk.version>
-        <micronaut.core.version>4.5.3</micronaut.core.version>
+        <micronaut-core.version>4.5.3</micronaut-core.version>
         <wiremock.micronaut.version>1.5.0</wiremock.micronaut.version>
     </properties>
 
@@ -41,7 +41,7 @@
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-inject</artifactId>
-            <version>${micronaut.core.version}</version>
+            <version>${micronaut-core.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -103,7 +103,7 @@
                         <path>
                             <groupId>io.micronaut</groupId>
                             <artifactId>micronaut-inject-java</artifactId>
-                            <version>${micronaut.core.version}</version>
+                            <version>${micronaut-core.version}</version>
                         </path>
                     </annotationProcessorPaths>
                     <annotationProcessorPathsUseDepMgmt>true</annotationProcessorPathsUseDepMgmt>
@@ -121,7 +121,7 @@
             <plugin>
                 <groupId>io.github.ascopes</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
-                <version>2.2.0</version>
+                <version>2.2.3</version>
                 <configuration>
                     <protocVersion>3.25.3</protocVersion>
                     <sourceDirectories>
@@ -132,7 +132,7 @@
                         <binaryMavenPlugin>
                             <groupId>io.grpc</groupId>
                             <artifactId>protoc-gen-grpc-java</artifactId>
-                            <version>1.64.0</version>
+                            <version>1.65.0</version>
                         </binaryMavenPlugin>
                     </binaryMavenPlugins>
                 </configuration>
