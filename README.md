@@ -13,11 +13,10 @@
 In your `pom.xml`, simply add the `wiremock-micronaut` dependency:
 
 ```xml
-
 <dependency>
     <groupId>io.github.nahuel92</groupId>
     <artifactId>wiremock-micronaut</artifactId>
-  <version>1.6.0</version>
+  <version>1.7.0</version>
     <scope>test</scope>
 </dependency>
 ```
@@ -71,7 +70,6 @@ exclusive `WireMockServer` instance. You get maximum isolation between your serv
 complex test setup.
 
 ```java
-
 @MicronautTest
 @EnableWireMock({
         @ConfigureWireMock(
@@ -110,7 +108,6 @@ The following example shows how to use the *Multiple Property Injection*, which 
 `WireMockServer` instance. You give up on isolation between your services' mocks, but you get a less complex test setup.
 
 ```java
-
 @MicronautTest
 @EnableWireMock(
         @ConfigureWireMock(
@@ -138,7 +135,6 @@ class YourTest {
 Usually, you'll configure your tests as follows:
 
 ```java
-
 @MicronautTest
 @EnableWireMock({
         @ConfigureWireMock(
@@ -173,7 +169,6 @@ class YourTest {
 Or, if you need only one server:
 
 ```java
-
 @MicronautTest
 @EnableWireMock(
         @ConfigureWireMock(
@@ -201,7 +196,6 @@ In the previous situation, when the test only requires exactly one WireMock serv
 In this case, the `WireMock` client class can be used to configure your stubs:
 
 ```java
-
 @MicronautTest
 @EnableWireMock(
         @ConfigureWireMock(
@@ -227,7 +221,6 @@ class YourTest {
 By default, classpath location is used to get stubs:
 
 ```java
-
 @MicronautTest
 @EnableWireMock(
         @ConfigureWireMock(
@@ -256,7 +249,6 @@ But sometimes you may want to use any directory on the file system.
 To achieve that, you can override a property called `stubLocationOnClasspath` on the `@ConfigureWireMock`:
 
 ```java
-
 @MicronautTest
 @EnableWireMock(
         @ConfigureWireMock(
@@ -297,7 +289,6 @@ In the following example, WireMock is instructed to:
 - Search for service descriptor files under `src/test/resources/wiremock`.
 
 ```java
-
 @MicronautTest
 @EnableWireMock({
         @ConfigureWireMock(
@@ -333,7 +324,6 @@ public class GrpcTest {
 It also supports multiple gRPC and HTTP stubs at the same time, although you may want to stick to simpler tests:
 
 ```java
-
 @MicronautTest
 @EnableWireMock({
         @ConfigureWireMock(
