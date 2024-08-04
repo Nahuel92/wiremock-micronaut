@@ -1,25 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>wiremock-micronaut</artifactId>
-    <version>1.7.0</version>
+    <version>1.8.0</version>
 
     <parent>
         <groupId>io.github.nahuel92</groupId>
         <artifactId>wiremock-micronaut-parent</artifactId>
-        <version>1.7.0</version>
+        <version>1.8.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <name>WireMock Micronaut</name>
     <description>WireMock integration for Micronaut</description>
     <url>https://github.com/nahuel92/wiremock-micronaut/</url>
-
-    <properties>
-        <jdk.version>21</jdk.version>
-        <micronaut-core.version>4.5.3</micronaut-core.version>
-    </properties>
 
     <dependencies>
         <dependency>
@@ -30,7 +26,6 @@
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-inject</artifactId>
-            <version>${micronaut-core.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -41,13 +36,11 @@
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-runtime</artifactId>
-            <version>${micronaut-core.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.micronaut.test</groupId>
             <artifactId>micronaut-test-core</artifactId>
-            <version>4.4.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -68,7 +61,6 @@
         <dependency>
             <groupId>org.wiremock</groupId>
             <artifactId>wiremock-grpc-extension</artifactId>
-            <version>0.6.0</version>
             <scope>compile</scope>
         </dependency>
 
@@ -95,13 +87,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
                 <configuration>
                     <annotationProcessorPaths combine.children="append">
                         <path>
                             <groupId>io.micronaut</groupId>
                             <artifactId>micronaut-inject-java</artifactId>
-                            <version>${micronaut-core.version}</version>
                         </path>
                     </annotationProcessorPaths>
                     <annotationProcessorPathsUseDepMgmt>true</annotationProcessorPathsUseDepMgmt>
