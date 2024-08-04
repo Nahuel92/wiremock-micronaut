@@ -14,10 +14,10 @@ In your `pom.xml`, simply add the `wiremock-micronaut` dependency:
 
 ```xml
 <dependency>
-    <groupId>io.github.nahuel92</groupId>
-    <artifactId>wiremock-micronaut</artifactId>
-  <version>1.7.0</version>
-    <scope>test</scope>
+  <groupId>io.github.nahuel92</groupId>
+  <artifactId>wiremock-micronaut</artifactId>
+  <version>1.8.0</version>
+  <scope>test</scope>
 </dependency>
 ```
 
