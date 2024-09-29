@@ -4,12 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>wiremock-example</artifactId>
-    <version>1.8.0</version>
+    <version>1.8.1</version>
 
     <parent>
         <groupId>io.github.nahuel92</groupId>
         <artifactId>wiremock-micronaut-parent</artifactId>
-        <version>1.8.0</version>
+        <version>1.8.1</version>
     </parent>
 
     <name>WireMock Micronaut Example</name>
@@ -17,7 +17,7 @@
     <url>https://github.com/nahuel92/wiremock-micronaut/</url>
 
     <properties>
-        <wiremock.micronaut.version>1.8.0</wiremock.micronaut.version>
+        <wiremock.micronaut.version>1.8.1</wiremock.micronaut.version>
     </properties>
 
     <dependencies>
@@ -44,6 +44,7 @@
         <dependency>
             <groupId>io.micronaut.grpc</groupId>
             <artifactId>micronaut-grpc-client-runtime</artifactId>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.micronaut.serde</groupId>
@@ -123,7 +124,7 @@
                         <binaryMavenPlugin>
                             <groupId>io.grpc</groupId>
                             <artifactId>protoc-gen-grpc-java</artifactId>
-                            <version>1.65.1</version>
+                            <version>1.68.0</version>
                         </binaryMavenPlugin>
                     </binaryMavenPlugins>
                 </configuration>
