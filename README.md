@@ -16,7 +16,7 @@ In your `pom.xml`, simply add the `wiremock-micronaut` dependency:
 <dependency>
   <groupId>io.github.nahuel92</groupId>
   <artifactId>wiremock-micronaut</artifactId>
-  <version>1.8.3</version>
+  <version>1.8.4</version>
   <scope>test</scope>
 </dependency>
 ```
