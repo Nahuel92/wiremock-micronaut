@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
 @Inherited
 @Requires(condition = TestActiveCondition.class)
 @Executable
-public @interface EnableWireMock {
+public @interface MicronautWireMockTest {
     /**
      * A list of {@link WireMockServer} configurations. For each configuration a separate instance
      * of {@link WireMockServer} is created.

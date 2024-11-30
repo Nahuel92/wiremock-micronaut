@@ -53,7 +53,7 @@ class WireMockMicronautExtension extends MicronautJunit5Extension {
 
     @Override
     protected boolean hasExpectedAnnotations(final Class<?> testClass) {
-        return AnnotationSupport.isAnnotated(testClass, EnableWireMock.class);
+        return AnnotationSupport.isAnnotated(testClass, MicronautWireMockTest.class);
     }
 
     @Override
@@ -74,12 +74,12 @@ class WireMockMicronautExtension extends MicronautJunit5Extension {
     @Override
     protected MicronautTestValue buildMicronautTestValue(final Class<?> testClass) {
         return AnnotationSupport
-                .findAnnotation(testClass, EnableWireMock.class)
+                .findAnnotation(testClass, MicronautWireMockTest.class)
                 .map(this::buildValueObject)
                 .orElse(null);
     }
 
-    private MicronautTestValue buildValueObject(final EnableWireMock micronautTest) {
+    private MicronautTestValue buildValueObject(final MicronautWireMockTest micronautTest) {
         return new MicronautTestValue(
                 micronautTest.application(),
                 micronautTest.environments(),
@@ -95,13 +95,15 @@ class WireMockMicronautExtension extends MicronautJunit5Extension {
     }
 
     private void configureWireMockServers(final ExtensionContext extensionContext) {
-        for (final var enableWireMock : extensionContext.getRequiredTestClass().getAnnotationsByType(EnableWireMock.class)) {
-            if (enableWireMock.value().length == 1) {
-                final var wireMockServer = getOrCreateServer(extensionContext, enableWireMock.value()[0]);
+        final var micronautWiremockTests = extensionContext.getRequiredTestClass()
+                .getAnnotationsByType(MicronautWireMockTest.class);
+        for (final var each : micronautWiremockTests) {
+            if (each.value().length == 1) {
+                final var wireMockServer = getOrCreateServer(extensionContext, each.value()[0]);
                 WireMock.configureFor(wireMockServer.port());
                 continue;
             }
-            for (final var options : enableWireMock.value()) {
+            for (final var options : each.value()) {
                 getOrCreateServer(extensionContext, options);
             }
         }

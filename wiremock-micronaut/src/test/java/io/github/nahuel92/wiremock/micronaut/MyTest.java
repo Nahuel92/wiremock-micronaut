@@ -4,7 +4,7 @@ import io.micronaut.context.annotation.Property;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-@EnableWireMock(@ConfigureWireMock(name = "wiremock", properties = "my.property"))
+@MicronautWireMockTest(@ConfigureWireMock(name = "wiremock", properties = "my.property"))
 class MyTest {
     @Property(name = "my.property")
     String myProperty;

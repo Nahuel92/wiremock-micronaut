@@ -2,7 +2,7 @@ package app;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import io.github.nahuel92.wiremock.micronaut.ConfigureWireMock;
-import io.github.nahuel92.wiremock.micronaut.EnableWireMock;
+import io.github.nahuel92.wiremock.micronaut.MicronautWireMockTest;
 import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.MediaType;
 import jakarta.inject.Inject;
@@ -18,7 +18,7 @@ class TodoClientTest {
     @Inject
     private TodoClient todoClient;
 
-    @EnableWireMock(
+    @MicronautWireMockTest(
             @ConfigureWireMock(name = "todo-client", properties = "todo-client.url", stubLocation = "custom-location")
     )
     @Nested
@@ -63,7 +63,7 @@ class TodoClientTest {
         }
     }
 
-    @EnableWireMock(
+    @MicronautWireMockTest(
             @ConfigureWireMock(name = "todo-client", properties = "todo-client.url", stubLocation = "custom-location")
     )
     @Nested

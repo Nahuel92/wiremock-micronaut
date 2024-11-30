@@ -1,13 +1,13 @@
 package app;
 
 import io.github.nahuel92.wiremock.micronaut.ConfigureWireMock;
-import io.github.nahuel92.wiremock.micronaut.EnableWireMock;
+import io.github.nahuel92.wiremock.micronaut.MicronautWireMockTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@EnableWireMock(
+@MicronautWireMockTest(
         @ConfigureWireMock(
                 name = "user-client",
                 properties = "user-client.url",

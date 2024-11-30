@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@EnableWireMock({
+@MicronautWireMockTest({
         @ConfigureWireMock(name = "user-service", properties = "user-service.url", portProperty = "user-service.port"),
         @ConfigureWireMock(name = "todo-service", properties = "todo-service.url", portProperty = "todo-service.port"),
         @ConfigureWireMock(name = "noproperty-service")
