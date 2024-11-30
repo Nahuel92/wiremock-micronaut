@@ -9,7 +9,6 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.client.HttpClient;
 import io.micronaut.runtime.server.EmbeddedServer;
-import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 import org.assertj.core.api.AutoCloseableSoftAssertions;
 import org.assertj.core.api.InstanceOfAssertFactories;
@@ -19,7 +18,6 @@ import org.junit.jupiter.api.Test;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 
-@MicronautTest
 @EnableWireMock({
         @ConfigureWireMock(name = "user-client", properties = "user-client.url"),
         @ConfigureWireMock(name = "todo-service", properties = "todo-client.url")

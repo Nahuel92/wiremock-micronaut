@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.google.common.base.Preconditions;
 import io.micronaut.context.env.MapPropertySource;
+import io.micronaut.test.annotation.MicronautTestValue;
 import io.micronaut.test.extensions.junit5.MicronautJunit5Extension;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
@@ -44,8 +45,15 @@ class WireMockMicronautExtension extends MicronautJunit5Extension {
 
     @Override
     public boolean supportsParameter(final ParameterContext parameterContext, final ExtensionContext extensionContext) {
-        return SUPPORTED_TYPES.contains(parameterContext.getParameter().getType()) &&
-                parameterContext.isAnnotated(InjectWireMock.class);
+        return (
+                SUPPORTED_TYPES.contains(parameterContext.getParameter().getType()) &&
+                        parameterContext.isAnnotated(InjectWireMock.class)
+        ) || super.supportsParameter(parameterContext, extensionContext);
+    }
+
+    @Override
+    protected boolean hasExpectedAnnotations(final Class<?> testClass) {
+        return AnnotationSupport.isAnnotated(testClass, EnableWireMock.class);
     }
 
     @Override
@@ -61,6 +69,29 @@ class WireMockMicronautExtension extends MicronautJunit5Extension {
             wireMockServer.resetAll();
         }
         injectWireMockInstances(extensionContext);
+    }
+
+    @Override
+    protected MicronautTestValue buildMicronautTestValue(final Class<?> testClass) {
+        return AnnotationSupport
+                .findAnnotation(testClass, EnableWireMock.class)
+                .map(this::buildValueObject)
+                .orElse(null);
+    }
+
+    private MicronautTestValue buildValueObject(final EnableWireMock micronautTest) {
+        return new MicronautTestValue(
+                micronautTest.application(),
+                micronautTest.environments(),
+                micronautTest.packages(),
+                micronautTest.propertySources(),
+                micronautTest.rollback(),
+                micronautTest.transactional(),
+                micronautTest.rebuildContext(),
+                micronautTest.contextBuilder(),
+                micronautTest.transactionMode(),
+                micronautTest.startApplication(),
+                micronautTest.resolveParameters());
     }
 
     private void configureWireMockServers(final ExtensionContext extensionContext) {
@@ -179,8 +210,7 @@ class WireMockMicronautExtension extends MicronautJunit5Extension {
             return getStore(extensionContext)
                     .getOrComputeIfAbsent(
                             key.toString() + applicationContext,
-                            (applicationContext) -> new ConcurrentHashMap<K, V>(),
-                            Map.class
+                            applicationContext -> new ConcurrentHashMap<K, V>(), Map.class
                     );
         }
     }

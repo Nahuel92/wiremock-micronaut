@@ -5,7 +5,6 @@ import io.github.nahuel92.wiremock.micronaut.ConfigureWireMock;
 import io.github.nahuel92.wiremock.micronaut.EnableWireMock;
 import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.MediaType;
-import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -19,7 +18,6 @@ class TodoClientTest {
     @Inject
     private TodoClient todoClient;
 
-    @MicronautTest
     @EnableWireMock(
             @ConfigureWireMock(name = "todo-client", properties = "todo-client.url", stubLocation = "custom-location")
     )
@@ -65,7 +63,6 @@ class TodoClientTest {
         }
     }
 
-    @MicronautTest
     @EnableWireMock(
             @ConfigureWireMock(name = "todo-client", properties = "todo-client.url", stubLocation = "custom-location")
     )

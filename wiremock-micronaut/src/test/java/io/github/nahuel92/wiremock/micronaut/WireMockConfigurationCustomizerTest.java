@@ -5,7 +5,6 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.client.HttpClient;
-import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,7 +18,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@MicronautTest
 @EnableWireMock({
         @ConfigureWireMock(
                 name = "user-service",

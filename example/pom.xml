@@ -4,12 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>wiremock-example</artifactId>
-    <version>1.7.0</version>
+    <version>1.9.0</version>
 
     <parent>
         <groupId>io.github.nahuel92</groupId>
         <artifactId>wiremock-micronaut-parent</artifactId>
-        <version>1.7.0</version>
+        <version>1.9.0</version>
     </parent>
 
     <name>WireMock Micronaut Example</name>
@@ -18,8 +18,7 @@
 
     <properties>
         <jdk.version>21</jdk.version>
-        <micronaut-core.version>4.5.3</micronaut-core.version>
-        <wiremock.micronaut.version>1.7.0</wiremock.micronaut.version>
+        <wiremock.micronaut.version>1.9.0</wiremock.micronaut.version>
     </properties>
 
     <dependencies>
@@ -47,7 +46,7 @@
         <dependency>
             <groupId>io.micronaut.grpc</groupId>
             <artifactId>micronaut-grpc-client-runtime</artifactId>
-            <version>4.5.0</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.micronaut.serde</groupId>
@@ -64,12 +63,6 @@
         <!-- Test dependencies -->
         <dependency>
             <groupId>io.micronaut.test</groupId>
-            <artifactId>micronaut-test-core</artifactId>
-            <version>4.4.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.micronaut.test</groupId>
             <artifactId>micronaut-test-junit5</artifactId>
             <scope>test</scope>
         </dependency>
@@ -81,7 +74,6 @@
         <dependency>
             <groupId>org.wiremock</groupId>
             <artifactId>wiremock-grpc-extension</artifactId>
-            <version>0.6.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -97,7 +89,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
                 <configuration>
                     <annotationProcessorPaths combine.children="append">
                         <path>
@@ -121,7 +112,7 @@
             <plugin>
                 <groupId>io.github.ascopes</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
-                <version>2.3.0</version>
+                <version>2.7.1</version>
                 <configuration>
                     <protocVersion>3.25.3</protocVersion>
                     <sourceDirectories>
@@ -132,7 +123,7 @@
                         <binaryMavenPlugin>
                             <groupId>io.grpc</groupId>
                             <artifactId>protoc-gen-grpc-java</artifactId>
-                            <version>1.65.1</version>
+                            <version>1.68.1</version>
                         </binaryMavenPlugin>
                     </binaryMavenPlugins>
                 </configuration>
