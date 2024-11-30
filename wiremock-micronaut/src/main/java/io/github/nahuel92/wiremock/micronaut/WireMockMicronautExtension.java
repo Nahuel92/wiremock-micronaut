@@ -40,7 +40,7 @@ class WireMockMicronautExtension extends MicronautJunit5Extension {
         if (annotation.isPresent()) {
             return internalStore.getServerMap(extensionContext).get(annotation.get().value());
         }
-        throw new IllegalStateException();
+        return super.resolveParameter(parameterContext, extensionContext);
     }
 
     @Override
