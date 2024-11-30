@@ -26,7 +26,8 @@ class PropertyInjectionTest {
     @Property(name = "myValue4", value = "any4")
     void successOnInjectingProperties(@Property(name = "myValue3") final String myValue3,
                                       /* I wouldn't recommend using @Value as parameter
-                                      since it doesn't resolve placeholders (e.g., ${myValue4})
+                                      since it doesn't resolve placeholders (e.g., ${myValue4}).
+                                      It might be a Micronaut Test bug.
                                        */
                                       @Value("myValue4") final String myValue4) {
         try (final var softly = new AutoCloseableSoftAssertions()) {
