@@ -16,10 +16,6 @@
     <description>WireMock integration for Micronaut</description>
     <url>https://github.com/nahuel92/wiremock-micronaut/</url>
 
-    <properties>
-        <jdk.version>21</jdk.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>ch.qos.logback</groupId>
