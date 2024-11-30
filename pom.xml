@@ -9,9 +9,9 @@
 
     <properties>
         <java.version>21</java.version>
-        <micronaut-core.version>4.5.3</micronaut-core.version>
-        <micronaut-parent.version>4.5.0</micronaut-parent.version>
-        <wiremock.version>3.9.0</wiremock.version>
+        <micronaut-core.version>4.7.6</micronaut-core.version>
+        <micronaut-parent.version>4.7.1</micronaut-parent.version>
+        <wiremock.version>3.10.0</wiremock.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -54,7 +54,7 @@
             <dependency>
                 <groupId>io.micronaut.grpc</groupId>
                 <artifactId>micronaut-grpc-client-runtime</artifactId>
-                <version>4.5.0</version>
+                <version>4.8.0</version>
             </dependency>
             <dependency>
                 <groupId>io.micronaut.platform</groupId>
@@ -66,9 +66,8 @@
             <dependency>
                 <groupId>io.micronaut.serde</groupId>
                 <artifactId>micronaut-serde-jackson</artifactId>
-                <version>2.10.1</version>
+                <version>2.13.0</version>
             </dependency>
-
 
             <dependency>
                 <groupId>org.wiremock</groupId>
@@ -78,7 +77,7 @@
             <dependency>
                 <groupId>org.wiremock</groupId>
                 <artifactId>wiremock-grpc-extension</artifactId>
-                <version>0.6.0</version>
+                <version>0.8.1</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
