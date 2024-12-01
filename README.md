@@ -13,11 +13,12 @@
 In your `pom.xml`, simply add the `wiremock-micronaut` dependency:
 
 ```xml
+
 <dependency>
-    <groupId>io.github.nahuel92</groupId>
-    <artifactId>wiremock-micronaut</artifactId>
+  <groupId>io.github.nahuel92</groupId>
+  <artifactId>wiremock-micronaut</artifactId>
   <version>2.0.0</version>
-    <scope>test</scope>
+  <scope>test</scope>
 </dependency>
 ```
 
@@ -33,15 +34,19 @@ Use `@MicronautWireMockTest` with `@ConfigureWireMock`:
                 properties = "user-client.url"
         )
 )
+@Property(name = "myProp", value = "myVal")
 class TodoControllerTests {
     @InjectWireMock("user-service")
     private WireMockServer wiremock;
 
     @Value("${user-client.url}")
-    private String wiremockUrl; // will contain the base URL for this WireMock instance.
+    private String wiremockUrlValue; // will contain the base URL for this WireMock instance.
+
+  @Property("user-client.url")
+  private String wiremockUrlProperty; // will contain the base URL for this WireMock instance.
 
     @Test
-    void yourSUTTest() {
+    void yourSUTTest(@Property("myProp") final String myProp) {
         // given
       wiremock.stubFor(/*Your request*/);
 
@@ -54,10 +59,11 @@ class TodoControllerTests {
 }
 ```
 
-- `@MicronautWireMockTest` is a combination of `@MicronautTest` + my WireMock extension code
+- `@MicronautWireMockTest` is an enhanced `@MicronautTest` annotation with WireMock capabilities, which means you can
+  pass the same parameters as you would with `@MicronautTest`.
 - `@ConfigureWireMock` creates a `WireMockServer` and passes the `WireMockServer.baseUrl` to a Micronaut environment
-  property with a name given by a property.
-- `@InjectWireMock` injects `WireMockServer` instances to your test.
+  property with a name given by a property
+- `@InjectWireMock` injects `WireMockServer` instances to your test
 
 > [!NOTE]
 > `WireMockServer` instances aren't added as beans to the Micronaut application context. Instead, instances
