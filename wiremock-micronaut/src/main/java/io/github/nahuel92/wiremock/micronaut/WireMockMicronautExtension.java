@@ -6,6 +6,7 @@ import com.google.common.base.Preconditions;
 import io.micronaut.context.env.MapPropertySource;
 import io.micronaut.test.annotation.MicronautTestValue;
 import io.micronaut.test.extensions.junit5.MicronautJunit5Extension;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.platform.commons.support.AnnotationSupport;
@@ -52,7 +53,12 @@ class WireMockMicronautExtension extends MicronautJunit5Extension {
 
     @Override
     protected boolean hasExpectedAnnotations(final Class<?> testClass) {
-        return AnnotationSupport.isAnnotated(testClass, MicronautWireMockTest.class);
+        final var isMicronautTest = AnnotationSupport.isAnnotated(testClass, MicronautTest.class);
+        final var isMicronautWireMockTest = AnnotationSupport.isAnnotated(testClass, MicronautWireMockTest.class);
+        if (isMicronautTest && isMicronautWireMockTest) {
+            throw new IllegalStateException("@MicronautTest shouldn't be used together with @MicronautWireMockTest!");
+        }
+        return isMicronautWireMockTest;
     }
 
     @Override
