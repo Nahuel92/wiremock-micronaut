@@ -45,15 +45,9 @@ class WireMockMicronautExtension extends MicronautJunit5Extension {
 
     @Override
     public boolean supportsParameter(final ParameterContext parameterContext, final ExtensionContext extensionContext) {
-        return (
-                SUPPORTED_TYPES.contains(parameterContext.getParameter().getType()) &&
-                        parameterContext.isAnnotated(InjectWireMock.class)
-        ) || super.supportsParameter(parameterContext, extensionContext);
-    }
-
-    @Override
-    protected boolean hasExpectedAnnotations(final Class<?> testClass) {
-        return AnnotationSupport.isAnnotated(testClass, MicronautWireMockTest.class);
+        return (SUPPORTED_TYPES.contains(parameterContext.getParameter().getType()) &&
+                parameterContext.isAnnotated(InjectWireMock.class))
+                || super.supportsParameter(parameterContext, extensionContext);
     }
 
     @Override
@@ -79,19 +73,19 @@ class WireMockMicronautExtension extends MicronautJunit5Extension {
                 .orElse(null);
     }
 
-    private MicronautTestValue buildValueObject(final MicronautWireMockTest micronautTest) {
+    private MicronautTestValue buildValueObject(final MicronautWireMockTest micronautWireMockTest) {
         return new MicronautTestValue(
-                micronautTest.application(),
-                micronautTest.environments(),
-                micronautTest.packages(),
-                micronautTest.propertySources(),
-                micronautTest.rollback(),
-                micronautTest.transactional(),
-                micronautTest.rebuildContext(),
-                micronautTest.contextBuilder(),
-                micronautTest.transactionMode(),
-                micronautTest.startApplication(),
-                micronautTest.resolveParameters());
+                micronautWireMockTest.application(),
+                micronautWireMockTest.environments(),
+                micronautWireMockTest.packages(),
+                micronautWireMockTest.propertySources(),
+                micronautWireMockTest.rollback(),
+                micronautWireMockTest.transactional(),
+                micronautWireMockTest.rebuildContext(),
+                micronautWireMockTest.contextBuilder(),
+                micronautWireMockTest.transactionMode(),
+                micronautWireMockTest.startApplication(),
+                micronautWireMockTest.resolveParameters());
     }
 
     private void configureWireMockServers(final ExtensionContext extensionContext) {
