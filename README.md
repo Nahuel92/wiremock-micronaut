@@ -34,15 +34,19 @@ Use `@MicronautWireMockTest` with `@ConfigureWireMock`:
                 properties = "user-client.url"
         )
 )
+@Property(name = "myProp", value = "myVal")
 class TodoControllerTests {
     @InjectWireMock("user-service")
     private WireMockServer wiremock;
 
     @Value("${user-client.url}")
-    private String wiremockUrl; // will contain the base URL for this WireMock instance.
+    private String wiremockUrlValue; // will contain the base URL for this WireMock instance.
+
+  @Property("user-client.url")
+  private String wiremockUrlProperty; // will contain the base URL for this WireMock instance.
 
     @Test
-    void yourSUTTest() {
+    void yourSUTTest(@Property("myProp") final String myProp) {
         // given
       wiremock.stubFor(/*Your request*/);
 
