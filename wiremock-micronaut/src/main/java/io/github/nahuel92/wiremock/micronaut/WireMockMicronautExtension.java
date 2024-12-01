@@ -51,6 +51,11 @@ class WireMockMicronautExtension extends MicronautJunit5Extension {
     }
 
     @Override
+    protected boolean hasExpectedAnnotations(final Class<?> testClass) {
+        return AnnotationSupport.isAnnotated(testClass, MicronautWireMockTest.class);
+    }
+
+    @Override
     public void beforeAll(final ExtensionContext extensionContext) throws Exception {
         super.beforeAll(extensionContext);
         configureWireMockServers(extensionContext);

@@ -39,7 +39,6 @@
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-inject</artifactId>
-            <version>${micronaut-core.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
