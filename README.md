@@ -13,22 +13,22 @@
 In your `pom.xml`, simply add the `wiremock-micronaut` dependency:
 
 ```xml
+
 <dependency>
   <groupId>io.github.nahuel92</groupId>
   <artifactId>wiremock-micronaut</artifactId>
-  <version>1.8.4</version>
+  <version>2.0.0</version>
   <scope>test</scope>
 </dependency>
 ```
 
 ## How to use
 
-Use `@EnableWireMock` with `@ConfigureWireMock` with tests annotated that use `MicronautJunit5Extension`,
-like `@MicronautTest`:
+Use `@MicronautWireMockTest` with `@ConfigureWireMock`:
 
 ```java
-@MicronautTest
-@EnableWireMock(
+
+@MicronautWireMockTest(
         @ConfigureWireMock(
                 name = "user-service",
                 properties = "user-client.url"
@@ -55,12 +55,14 @@ class TodoControllerTests {
 }
 ```
 
-- `@EnableWireMock` adds test context customizer and enables `WireMockMicronautExtension`.
+- `@MicronautWireMockTest` is an enhanced `@MicronautTest` annotation with WireMock capabilities, which means you can
+  pass the same parameters as you would with `@MicronautTest`.
 - `@ConfigureWireMock` creates a `WireMockServer` and passes the `WireMockServer.baseUrl` to a Micronaut environment
-  property with a name given by a property.
-- `@InjectWireMock` injects `WireMockServer` instances to your test.
+  property with a name given by a property
+- `@InjectWireMock` injects `WireMockServer` instances to your test
 
-> **Note:** `WireMockServer` instances aren't added as beans to the Micronaut application context. Instead, instances
+> [!NOTE]
+> `WireMockServer` instances aren't added as beans to the Micronaut application context. Instead, instances
 > are kept in a separate store associated with the application context used by tests.
 
 ### Single Property Injection
@@ -70,8 +72,8 @@ exclusive `WireMockServer` instance. You get maximum isolation between your serv
 complex test setup.
 
 ```java
-@MicronautTest
-@EnableWireMock({
+
+@MicronautWireMockTest({
         @ConfigureWireMock(
                 name = "foo-service",
                 properties = "app.client-apis.foo.base-path"
@@ -108,8 +110,8 @@ The following example shows how to use the *Multiple Property Injection*, which 
 `WireMockServer` instance. You give up on isolation between your services' mocks, but you get a less complex test setup.
 
 ```java
-@MicronautTest
-@EnableWireMock(
+
+@MicronautWireMockTest(
         @ConfigureWireMock(
                 name = "services",
                 properties = {
@@ -135,8 +137,8 @@ class YourTest {
 Usually, you'll configure your tests as follows:
 
 ```java
-@MicronautTest
-@EnableWireMock({
+
+@MicronautWireMockTest({
         @ConfigureWireMock(
                 name = "todo-client",
                 properties = "todo-client.url",
@@ -169,8 +171,8 @@ class YourTest {
 Or, if you need only one server:
 
 ```java
-@MicronautTest
-@EnableWireMock(
+
+@MicronautWireMockTest(
         @ConfigureWireMock(
                 name = "todo-client",
                 properties = "todo-client.url",
@@ -196,8 +198,8 @@ In the previous situation, when the test only requires exactly one WireMock serv
 In this case, the `WireMock` client class can be used to configure your stubs:
 
 ```java
-@MicronautTest
-@EnableWireMock(
+
+@MicronautWireMockTest(
         @ConfigureWireMock(
                 name = "todo-client",
                 properties = "todo-client.url",
@@ -221,8 +223,8 @@ class YourTest {
 By default, classpath location is used to get stubs:
 
 ```java
-@MicronautTest
-@EnableWireMock(
+
+@MicronautWireMockTest(
         @ConfigureWireMock(
                 name = "todo-client",
                 properties = "todo-client.url",
@@ -249,8 +251,8 @@ But sometimes you may want to use any directory on the file system.
 To achieve that, you can override a property called `stubLocationOnClasspath` on the `@ConfigureWireMock`:
 
 ```java
-@MicronautTest
-@EnableWireMock(
+
+@MicronautWireMockTest(
         @ConfigureWireMock(
                 name = "todo-client",
                 properties = "todo-client.url",
@@ -289,8 +291,8 @@ In the following example, WireMock is instructed to:
 - Search for service descriptor files under `src/test/resources/wiremock`.
 
 ```java
-@MicronautTest
-@EnableWireMock({
+
+@MicronautWireMockTest({
         @ConfigureWireMock(
                 name = GreeterGrpc.SERVICE_NAME,
                 portProperty = "my.port",
@@ -324,8 +326,8 @@ public class GrpcTest {
 It also supports multiple gRPC and HTTP stubs at the same time, although you may want to stick to simpler tests:
 
 ```java
-@MicronautTest
-@EnableWireMock({
+
+@MicronautWireMockTest({
         @ConfigureWireMock(
                 name = GreeterGrpc.SERVICE_NAME,
                 portProperty = "my.port",
