@@ -2,7 +2,6 @@ package io.github.nahuel92.wiremock.micronaut;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import io.micronaut.context.env.Environment;
-import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 import org.assertj.core.api.AutoCloseableSoftAssertions;
 import org.junit.jupiter.api.DisplayName;
@@ -12,8 +11,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class WireMockMicronautExtensionTest {
-    @MicronautTest
-    @EnableWireMock({
+    @MicronautWireMockTest({
             @ConfigureWireMock(name = "user-service", properties = "user-service.url", portProperty = "user-service.port"),
             @ConfigureWireMock(name = "todo-service", properties = "todo-service.url", portProperty = "todo-service.port"),
             @ConfigureWireMock(name = "noproperty-service"),
@@ -57,8 +55,7 @@ public class WireMockMicronautExtensionTest {
         }
     }
 
-    @MicronautTest
-    @EnableWireMock(
+    @MicronautWireMockTest(
             @ConfigureWireMock(name = "user-service", properties = {"user-service.url", "todo-service.url"})
     )
     @Nested

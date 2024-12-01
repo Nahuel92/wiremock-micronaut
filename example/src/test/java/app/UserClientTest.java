@@ -2,11 +2,10 @@ package app;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import io.github.nahuel92.wiremock.micronaut.ConfigureWireMock;
-import io.github.nahuel92.wiremock.micronaut.EnableWireMock;
 import io.github.nahuel92.wiremock.micronaut.InjectWireMock;
+import io.github.nahuel92.wiremock.micronaut.MicronautWireMockTest;
 import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.MediaType;
-import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,8 +13,7 @@ import org.junit.jupiter.api.Test;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 
-@MicronautTest
-@EnableWireMock(@ConfigureWireMock(name = "user-client", properties = "user-client.url"))
+@MicronautWireMockTest(@ConfigureWireMock(name = "user-client", properties = "user-client.url"))
 class UserClientTest {
     @Inject
     private UserClient userClient;

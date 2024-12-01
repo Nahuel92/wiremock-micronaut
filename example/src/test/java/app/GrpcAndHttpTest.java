@@ -1,9 +1,8 @@
 package app;
 
 import io.github.nahuel92.wiremock.micronaut.ConfigureWireMock;
-import io.github.nahuel92.wiremock.micronaut.EnableWireMock;
 import io.github.nahuel92.wiremock.micronaut.InjectWireMock;
-import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import io.github.nahuel92.wiremock.micronaut.MicronautWireMockTest;
 import jakarta.inject.Inject;
 import mypackage.Greeter2Grpc;
 import mypackage.HelloReply2;
@@ -18,8 +17,7 @@ import static org.wiremock.grpc.dsl.WireMockGrpc.equalToMessage;
 import static org.wiremock.grpc.dsl.WireMockGrpc.message;
 import static org.wiremock.grpc.dsl.WireMockGrpc.method;
 
-@MicronautTest
-@EnableWireMock({
+@MicronautWireMockTest({
         @ConfigureWireMock(
                 name = GreeterGrpc.SERVICE_NAME,
                 portProperty = "my.port",
