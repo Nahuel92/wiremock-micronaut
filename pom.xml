@@ -5,13 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.nahuel92</groupId>
     <artifactId>wiremock-micronaut-parent</artifactId>
-    <version>1.8.4</version>
+    <version>2.0.0</version>
     <packaging>pom</packaging>
 
     <properties>
         <java.version>21</java.version>
-        <micronaut-parent.version>4.7.0</micronaut-parent.version>
-        <wiremock.version>3.9.2</wiremock.version>
+        <micronaut-core.version>4.7.6</micronaut-core.version>
+        <micronaut-parent.version>4.7.1</micronaut-parent.version>
+        <wiremock.version>3.10.0</wiremock.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -52,11 +53,15 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>io.micronaut</groupId>
+                <artifactId>micronaut-inject</artifactId>
+                <version>${micronaut-core.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>io.micronaut.grpc</groupId>
                 <artifactId>micronaut-grpc-client-runtime</artifactId>
                 <version>4.8.0</version>
             </dependency>
-
             <dependency>
                 <groupId>io.micronaut.platform</groupId>
                 <artifactId>micronaut-parent</artifactId>
@@ -69,7 +74,6 @@
                 <groupId>org.wiremock</groupId>
                 <artifactId>wiremock-grpc-extension</artifactId>
                 <version>0.8.1</version>
-                <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>org.wiremock</groupId>
@@ -82,11 +86,6 @@
     <build>
         <pluginManagement>
             <plugins>
-                <plugin>
-                    <groupId>io.github.ascopes</groupId>
-                    <artifactId>protobuf-maven-plugin</artifactId>
-                    <version>2.6.6</version>
-                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
