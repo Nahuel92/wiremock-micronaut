@@ -10,8 +10,7 @@
 
     <properties>
         <java.version>21</java.version>
-        <micronaut-core.version>4.7.6</micronaut-core.version>
-        <micronaut-parent.version>4.7.1</micronaut-parent.version>
+        <micronaut-parent.version>4.8.0</micronaut-parent.version>
         <wiremock.version>3.12.1</wiremock.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
@@ -52,11 +51,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>io.micronaut</groupId>
-                <artifactId>micronaut-inject</artifactId>
-                <version>${micronaut-core.version}</version>
-            </dependency>
             <dependency>
                 <groupId>io.micronaut.grpc</groupId>
                 <artifactId>micronaut-grpc-client-runtime</artifactId>
