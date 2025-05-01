@@ -1,5 +1,9 @@
 package app;
 
+import static org.wiremock.grpc.dsl.WireMockGrpc.equalToMessage;
+import static org.wiremock.grpc.dsl.WireMockGrpc.message;
+import static org.wiremock.grpc.dsl.WireMockGrpc.method;
+
 import io.github.nahuel92.wiremock.micronaut.ConfigureWireMock;
 import io.github.nahuel92.wiremock.micronaut.InjectWireMock;
 import io.github.nahuel92.wiremock.micronaut.MicronautWireMockTest;
@@ -10,26 +14,22 @@ import mypackage.HelloRequest2;
 import org.assertj.core.api.AutoCloseableSoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.wiremock.grpc.GrpcExtensionFactory;
+import org.wiremock.grpc.Jetty12GrpcExtensionFactory;
 import org.wiremock.grpc.dsl.WireMockGrpcService;
-
-import static org.wiremock.grpc.dsl.WireMockGrpc.equalToMessage;
-import static org.wiremock.grpc.dsl.WireMockGrpc.message;
-import static org.wiremock.grpc.dsl.WireMockGrpc.method;
 
 @MicronautWireMockTest({
         @ConfigureWireMock(
                 name = GreeterGrpc.SERVICE_NAME,
                 portProperty = "my.port",
                 properties = "my.server",
-                extensionFactories = GrpcExtensionFactory.class,
+                extensionFactories = Jetty12GrpcExtensionFactory.class,
                 stubLocation = "src/test/resources/wiremock"
         ),
         @ConfigureWireMock(
                 name = Greeter2Grpc.SERVICE_NAME,
                 portProperty = "my.port2",
                 properties = "my.server2",
-                extensionFactories = GrpcExtensionFactory.class,
+                extensionFactories = Jetty12GrpcExtensionFactory.class,
                 stubLocation = "src/test/resources/wiremock2"
         ),
         @ConfigureWireMock(name = "user-client", properties = "user-client.url")
