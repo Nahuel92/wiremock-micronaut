@@ -1,5 +1,10 @@
 package io.github.nahuel92.wiremock.micronaut;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.google.common.base.Preconditions;
@@ -12,13 +17,8 @@ import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.platform.commons.support.AnnotationSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wiremock.grpc.GrpcExtensionFactory;
+import org.wiremock.grpc.Jetty12GrpcExtensionFactory;
 import org.wiremock.grpc.dsl.WireMockGrpcService;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * JUnit 5 extension that sets {@link WireMockServer} instances previously registered with {@link ConfigureWireMock}
@@ -141,7 +141,7 @@ class WireMockMicronautExtension extends MicronautJunit5Extension {
 
     private boolean isGrpcTest(final ConfigureWireMock options) {
         for (final var extensionFactory : options.extensionFactories()) {
-            if (extensionFactory.equals(GrpcExtensionFactory.class)) {
+            if (extensionFactory.equals(Jetty12GrpcExtensionFactory.class)) {
                 return true;
             }
         }
