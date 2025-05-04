@@ -12,7 +12,7 @@ import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.platform.commons.support.AnnotationSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wiremock.grpc.GrpcExtensionFactory;
+import org.wiremock.grpc.Jetty12GrpcExtensionFactory;
 import org.wiremock.grpc.dsl.WireMockGrpcService;
 
 import java.util.HashMap;
@@ -141,7 +141,7 @@ class WireMockMicronautExtension extends MicronautJunit5Extension {
 
     private boolean isGrpcTest(final ConfigureWireMock options) {
         for (final var extensionFactory : options.extensionFactories()) {
-            if (extensionFactory.equals(GrpcExtensionFactory.class)) {
+            if (extensionFactory.equals(Jetty12GrpcExtensionFactory.class)) {
                 return true;
             }
         }
