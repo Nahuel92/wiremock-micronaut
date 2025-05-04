@@ -10,7 +10,7 @@ import mypackage.HelloRequest2;
 import org.assertj.core.api.AutoCloseableSoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.wiremock.grpc.GrpcExtensionFactory;
+import org.wiremock.grpc.Jetty12GrpcExtensionFactory;
 import org.wiremock.grpc.dsl.WireMockGrpcService;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,14 +23,14 @@ import static org.wiremock.grpc.dsl.WireMockGrpc.method;
                 name = GreeterGrpc.SERVICE_NAME,
                 portProperty = "my.port",
                 properties = "my.server",
-                extensionFactories = GrpcExtensionFactory.class,
+                extensionFactories = Jetty12GrpcExtensionFactory.class,
                 stubLocation = "src/test/resources/wiremock"
         ),
         @ConfigureWireMock(
                 name = Greeter2Grpc.SERVICE_NAME,
                 portProperty = "my.port2",
                 properties = "my.server2",
-                extensionFactories = GrpcExtensionFactory.class,
+                extensionFactories = Jetty12GrpcExtensionFactory.class,
                 stubLocation = "src/test/resources/wiremock2"
         )
 })

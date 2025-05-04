@@ -17,7 +17,7 @@ In your `pom.xml`, simply add the `wiremock-micronaut` dependency:
 <dependency>
   <groupId>io.github.nahuel92</groupId>
   <artifactId>wiremock-micronaut</artifactId>
-  <version>2.0.0</version>
+  <version>2.0.1</version>
   <scope>test</scope>
 </dependency>
 ```
@@ -301,7 +301,7 @@ In the following example, WireMock is instructed to:
                 name = GreeterGrpc.SERVICE_NAME,
                 portProperty = "my.port",
                 properties = "my.server",
-                extensionFactories = GrpcExtensionFactory.class,
+                extensionFactories = Jetty12GrpcExtensionFactory.class,
                 stubLocation = "src/test/resources/wiremock"
         )
 })
@@ -336,14 +336,14 @@ It also supports multiple gRPC and HTTP stubs at the same time, although you may
                 name = GreeterGrpc.SERVICE_NAME,
                 portProperty = "my.port",
                 properties = "my.server",
-                extensionFactories = GrpcExtensionFactory.class,
+                extensionFactories = Jetty12GrpcExtensionFactory.class,
                 stubLocation = "src/test/resources/wiremock"
         ),
         @ConfigureWireMock(
                 name = Greeter2Grpc.SERVICE_NAME,
                 portProperty = "my.port2",
                 properties = "my.server2",
-                extensionFactories = GrpcExtensionFactory.class,
+                extensionFactories = Jetty12GrpcExtensionFactory.class,
                 stubLocation = "src/test/resources/wiremock2"
         ),
         @ConfigureWireMock(name = "user-client", properties = "user-client.url")
