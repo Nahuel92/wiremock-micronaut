@@ -301,7 +301,7 @@ In the following example, WireMock is instructed to:
                 name = GreeterGrpc.SERVICE_NAME,
                 portProperty = "my.port",
                 properties = "my.server",
-                extensionFactories = Jetty12GrpcExtensionFactory.class,
+                extensionFactories = GrpcExtensionFactory.class,
                 stubLocation = "src/test/resources/wiremock"
         )
 })
@@ -336,14 +336,14 @@ It also supports multiple gRPC and HTTP stubs at the same time, although you may
                 name = GreeterGrpc.SERVICE_NAME,
                 portProperty = "my.port",
                 properties = "my.server",
-                extensionFactories = Jetty12GrpcExtensionFactory.class,
+                extensionFactories = GrpcExtensionFactory.class,
                 stubLocation = "src/test/resources/wiremock"
         ),
         @ConfigureWireMock(
                 name = Greeter2Grpc.SERVICE_NAME,
                 portProperty = "my.port2",
                 properties = "my.server2",
-                extensionFactories = Jetty12GrpcExtensionFactory.class,
+                extensionFactories = GrpcExtensionFactory.class,
                 stubLocation = "src/test/resources/wiremock2"
         ),
         @ConfigureWireMock(name = "user-client", properties = "user-client.url")
