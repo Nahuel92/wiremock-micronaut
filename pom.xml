@@ -61,7 +61,7 @@
             <dependency>
                 <groupId>io.micronaut.grpc</groupId>
                 <artifactId>micronaut-grpc-client-runtime</artifactId>
-                <version>4.9.0</version>
+                <version>4.12.0</version>
             </dependency>
             <dependency>
                 <groupId>io.micronaut.platform</groupId>
