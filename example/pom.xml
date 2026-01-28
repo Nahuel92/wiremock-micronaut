@@ -17,7 +17,7 @@
     <url>https://github.com/nahuel92/wiremock-micronaut/</url>
 
     <properties>
-        <wiremock.micronaut.version>2.0.1</wiremock.micronaut.version>
+        <wiremock.micronaut.version>2.0.2</wiremock.micronaut.version>
     </properties>
 
     <dependencies>
