@@ -13,9 +13,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <guava.version>33.4.8-jre</guava.version>
-        <micronaut-parent.version>4.8.2</micronaut-parent.version>
-        <wiremock.version>4.0.0-beta.2</wiremock.version>
+        <guava.version>33.5.0-jre</guava.version>
+        <micronaut-parent.version>4.10.7</micronaut-parent.version>
+        <wiremock.version>4.0.0-beta.27</wiremock.version>
     </properties>
 
     <name>WireMock Micronaut Parent</name>
@@ -61,7 +61,7 @@
             <dependency>
                 <groupId>io.micronaut.grpc</groupId>
                 <artifactId>micronaut-grpc-client-runtime</artifactId>
-                <version>4.9.0</version>
+                <version>4.12.0</version>
             </dependency>
             <dependency>
                 <groupId>io.micronaut.platform</groupId>
@@ -73,8 +73,8 @@
 
             <dependency>
                 <groupId>org.wiremock</groupId>
-                <artifactId>wiremock-grpc-extension-jetty12</artifactId>
-                <version>0.10.0</version>
+                <artifactId>wiremock-grpc-extension-jetty</artifactId>
+                <version>1.0.0-beta.5</version>
             </dependency>
             <dependency>
                 <groupId>org.wiremock</groupId>
@@ -115,7 +115,7 @@
                 <plugin>
                     <groupId>io.micronaut.maven</groupId>
                     <artifactId>micronaut-maven-plugin</artifactId>
-                    <version>4.8.2</version>
+                    <version>4.10.7</version>
                 </plugin>
             </plugins>
         </pluginManagement>

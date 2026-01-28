@@ -72,7 +72,7 @@
         </dependency>
         <dependency>
             <groupId>org.wiremock</groupId>
-            <artifactId>wiremock-grpc-extension-jetty12</artifactId>
+            <artifactId>wiremock-grpc-extension-jetty</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
